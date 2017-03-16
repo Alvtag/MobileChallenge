@@ -53,7 +53,6 @@ public class ConverterPresenterTest {
 
         converterPresenterUnderTest.appendChar('1');
 
-
         assertNotNull(converterPresenterUnderTest.inputValueInCentsStringBuilder);
         verify(converterActivityView).setInputValue("0.01");
         verify(converterActivityView).setOutputValue("");
@@ -75,12 +74,12 @@ public class ConverterPresenterTest {
         verify(converterActivityView, times(4)).setInfoText("");
 
         converterPresenterUnderTest.deleteChar();
-        verify(converterActivityView, times(2)).setInputValue("0.01");;
+        verify(converterActivityView, times(2)).setInputValue("0.01");
         verify(converterActivityView, times(5)).setOutputValue("");
         verify(converterActivityView, times(5)).setInfoText("");
 
         converterPresenterUnderTest.deleteChar();
-        verify(converterActivityView).setInputValue("");;
+        verify(converterActivityView).setInputValue("");
         verify(converterActivityView, times(6)).setOutputValue("");
         verify(converterActivityView, times(6)).setInfoText("");
 
@@ -120,14 +119,35 @@ public class ConverterPresenterTest {
         converterPresenterUnderTest.appendChar('4');
         converterPresenterUnderTest.appendChar('5');
 
-        assertEquals(1.45F, converterPresenterUnderTest.translateInputToFloat(), 0.01);
+        assertEquals(145, converterPresenterUnderTest.translateInputToCents(), 0.01);
+    }
+
+    @Test
+    public void translateLargeInputToFloat() {
+
+        converterPresenterUnderTest.appendChar('1');
+        converterPresenterUnderTest.appendChar('1');
+        converterPresenterUnderTest.appendChar('0');
+
+        converterPresenterUnderTest.appendChar('2');
+        converterPresenterUnderTest.appendChar('3');
+        converterPresenterUnderTest.appendChar('4');
+
+        converterPresenterUnderTest.appendChar('7');
+        converterPresenterUnderTest.appendChar('8');
+        converterPresenterUnderTest.appendChar('9');
+
+        converterPresenterUnderTest.appendChar('8');
+        converterPresenterUnderTest.appendChar('7');
+
+        assertEquals(11023478987L, converterPresenterUnderTest.translateInputToCents(), 0.01F);
     }
 
     @Test
     public void setInputCurrencyChoice() {
         @SuppressWarnings("unchecked")
         List<String> mockCurrencies = mock(List.class);
-        converterPresenterUnderTest.currenciesList= mockCurrencies;
+        converterPresenterUnderTest.currenciesList = mockCurrencies;
         when(mockCurrencies.size()).thenReturn(4);
 
         converterPresenterUnderTest.setInputCurrencyChoice(1);
@@ -141,7 +161,7 @@ public class ConverterPresenterTest {
     public void setOutputCurrencyChoice() {
         @SuppressWarnings("unchecked")
         List<String> mockCurrencies = mock(List.class);
-        converterPresenterUnderTest.currenciesList= mockCurrencies;
+        converterPresenterUnderTest.currenciesList = mockCurrencies;
         when(mockCurrencies.size()).thenReturn(4);
 
         converterPresenterUnderTest.setOutputCurrencyChoice(1);
@@ -152,7 +172,7 @@ public class ConverterPresenterTest {
     }
 
     @Test
-    public void loadCurrencies() throws Exception{
+    public void loadCurrencies() throws Exception {
         RatesCallback ratesCallback = mock(RatesCallback.class);
         // very strange mockito "feature" that you're to mockStatic the class that calls the constructor,
         // rather then mockStatic(RatesCallback.class)!
@@ -168,11 +188,11 @@ public class ConverterPresenterTest {
     }
 
     @Test
-    public void onNewRatesData() throws Exception{
+    public void onNewRatesData() throws Exception {
         ExchangeRates exchangeRates = mock(ExchangeRates.class);
         Map<String, Float> ratesMap = new HashMap<>();
-        ratesMap.put("AUD",1.32F);
-        ratesMap.put("CAD",1.78F);
+        ratesMap.put("AUD", 1.32F);
+        ratesMap.put("CAD", 1.78F);
         when(exchangeRates.getRates()).thenReturn(ratesMap);
         when(exchangeRates.getBase()).thenReturn("EUR");
         when(exchangeRates.getDate()).thenReturn("10-12-18");
@@ -196,7 +216,7 @@ public class ConverterPresenterTest {
 
     @Test
     public void onRatesFetchError() {
-        VolleyError mockVolleyError= mock(VolleyError.class);
+        VolleyError mockVolleyError = mock(VolleyError.class);
         when(mockVolleyError.toString()).thenReturn("hi");
 
         converterPresenterUnderTest.onRatesFetchError(mockVolleyError);
@@ -209,13 +229,13 @@ public class ConverterPresenterTest {
     public void convertForFoundItem() throws RateStorage.RateNotFoundException {
         converterPresenterUnderTest.inputCurrencyChoice = 1;
         converterPresenterUnderTest.outputCurrencyChoice = 0;
-        converterPresenterUnderTest.currenciesList = new ArrayList<>() ;
+        converterPresenterUnderTest.currenciesList = new ArrayList<>();
         converterPresenterUnderTest.currenciesList.add("CAD");
         converterPresenterUnderTest.currenciesList.add("USD");
         PowerMockito.mockStatic(RateStorage.class);
         RateStorage mockRateStorage = mock(RateStorage.class);
         PowerMockito.when(RateStorage.getInstance()).thenReturn(mockRateStorage);
-        when(mockRateStorage.getRate("USD","CAD"))
+        when(mockRateStorage.getRate("USD", "CAD"))
                 .thenReturn(new Pair<>(0.78F, "01-12-12"));
         assertNull(converterPresenterUnderTest.inputValueInCentsStringBuilder);
 
@@ -233,16 +253,16 @@ public class ConverterPresenterTest {
     }
 
     @Test
-    public void convertForMissingItem() throws RateStorage.RateNotFoundException , Exception{
+    public void convertForMissingItem() throws Exception {
         converterPresenterUnderTest.inputCurrencyChoice = 1;
         converterPresenterUnderTest.outputCurrencyChoice = 0;
-        converterPresenterUnderTest.currenciesList = new ArrayList<>() ;
+        converterPresenterUnderTest.currenciesList = new ArrayList<>();
         converterPresenterUnderTest.currenciesList.add("CAD");
         converterPresenterUnderTest.currenciesList.add("USD");
         PowerMockito.mockStatic(RateStorage.class);
         RateStorage mockRateStorage = mock(RateStorage.class);
         PowerMockito.when(RateStorage.getInstance()).thenReturn(mockRateStorage);
-        when(mockRateStorage.getRate("USD","CAD"))
+        when(mockRateStorage.getRate("USD", "CAD"))
                 .thenThrow(new RateStorage.RateNotFoundException());
         RatesCallback ratesCallback = mock(RatesCallback.class);
         PowerMockito.mockStatic(ConverterPresenter.class);
@@ -265,15 +285,16 @@ public class ConverterPresenterTest {
 
     @Test
     public void formatTinyNumber() {
-        assertEquals("0.02", ConverterPresenter.formatNumber(.02111F));
+        assertEquals("0.02", ConverterPresenter.formatNumber(2L));
     }
+
     @Test
     public void formatSmallNumber() {
-        assertEquals("1.12", ConverterPresenter.formatNumber(1.1231231F));
+        assertEquals("121.31", ConverterPresenter.formatNumber(12131L));
     }
 
     @Test
     public void formatBigNumber() {
-        assertEquals("1,234,567.12", ConverterPresenter.formatNumber(1234567.12F));
+        assertEquals("841,212,121,567.12", ConverterPresenter.formatNumber(84121212156712L));
     }
 }
