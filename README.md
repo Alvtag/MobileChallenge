@@ -3,6 +3,13 @@ So I made a small error when setting up this project. I did my development over 
 I had some problems with INSTALL_FAILED_INVALID_APK; if so disable Instant Run and it should be fine
 stackoverflow.com/questions/34805780/error-installing-split-apks-com-android-ddmlib-installexception-failed-to-fina
 
+couple of comments:
+- features I debated including (but didn't, since we all know feature creep is terrible)
+  - include swapping the input and output currencies
+  - persisting exchange rates data across app sessions (i.e. offline mode)
+- currencyPresenter has full test coverage.
+- when a rate is loaded, its inverse (e.g. USD->CAD/ CAD->USD) is calculated. this could save the use a network call if he swaps between 2 currencies.
+
 ~Alvin Fong
 
 
