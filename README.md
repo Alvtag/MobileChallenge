@@ -5,22 +5,33 @@ I had some problems with INSTALL_FAILED_INVALID_APK; if so disable Instant Run a
 stackoverflow.com/questions/34805780/error-installing-split-apks-com-android-ddmlib-installexception-failed-to-fina
 https://code.google.com/p/android/issues/detail?id=227610
 
-couple of comments:
-- features I debated including (but didn't, since we all know feature creep is terrible)
-  - include swapping the input and output currencies
+Some of comments:
+- features I debated including (but didn't, since we all know feature creep is terrible):
+  - button for swapping the input and output currencies
   - persisting exchange rates data across app sessions (i.e. offline mode)
-- currencyPresenter has full test coverage.
 - when a rate is loaded, its inverse (e.g. USD->CAD/ CAD->USD) is calculated. this could save the use a network call if he swaps between 2 currencies.
 - not too much work was put into Volley wrappers, an expansion to the app would benefit from more structure around this area.
-- missing test for VolleyWrapper.getRates() due to 
-  java.lang.IllegalStateException: Failed to transform class with name com.android.volley.toolbox.Volley. 
-  Reason: cannot find org.apache.http.client.HttpClient
-  this prevented me from powerMockito'ing Volly, but definitely worth researching in the future...
-  
+- model/presenter classes have test coverage.
+    - missing test for VolleyWrapper.getRates() due to
+      ```java.lang.IllegalStateException: Failed to transform class with name com.android.volley.toolbox.Volley.
+      Reason: cannot find org.apache.http.client.HttpClient```
+      this prevented me from powerMockito'ing Volley, but definitely worth researching in the future.
+
+Logic choices:
+- input value is stored internally in a stringBuilder. this allows me to easily append/remove digits from the end.
+  I have arbitrary precision while the value is stored in the stringBuilder.
+- BigDecimals are used for all arithmetic
+- converterPresenter.formatNumber(long cents) : I chose to have the signature take LONG instead of String because
+  It felt more natural for the caller to figure out how many cents is needed, then for formatNumber to change that to
+  dollars.cents. I think this keeps formaNumber lightweight.
+
 Design:
-1) MVP to allow easy testing  http://imgur.com/a/ioBGN
- - a TODO would be to convert to MVVM, change the variables in ConverterPresenter to ObservableFields, and have ConverterActivity bind to them. remove the interface from ConverterActivity.
+1) MVP to allow easy testing, please see http://imgur.com/a/ioBGN
 2) data binding library on XML layer. saves so much boilerplate.
+
+Future steps:
+1) convert to MVVM, change the variables in ConverterPresenter to ObservableFields,
+ and have ConverterActivity bind to them. remove the interface from ConverterActivity.
 
 ~Alvin Fong
 

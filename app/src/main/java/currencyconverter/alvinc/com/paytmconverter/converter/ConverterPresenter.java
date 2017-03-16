@@ -47,9 +47,6 @@ class ConverterPresenter {
             converterActivityView.setInfoText("sorry! we only support numbers up to 999,999,999,999.99");
         } else{
             inputValueInCentsStringBuilder.append(c);
-//            Log.d("ALVTAG","1:"+inputValueInCentsStringBuilder.toString());
-//            Log.d("ALVTAG","2:"+translateInputToCents());
-//            Log.d("ALVTAG","3:"+formatNumber(translateInputToCents()));
             long cents = translateInputToCents();
             String inputValueToDisplay = formatNumber(cents);
             converterActivityView.setInputValue(inputValueToDisplay);
@@ -150,13 +147,12 @@ class ConverterPresenter {
             converterActivityView.setInfoText("1 " + inputCurrency + " = " + rate + " " + outputCurrency + ", as of " + rateTimeStamp.second);
         } catch (RateStorage.RateNotFoundException e) {
             converterActivityView.setLoadingSpinnerVisible();
-            //todo disable UI elements until network call returns
             loadCurrencies(inputCurrency, true);
         }
     }
 
-    static String formatNumber(long input) {
-        BigDecimal bigDecimalTest = (new BigDecimal(String.valueOf(input))).divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
+    static String formatNumber(long cents) {
+        BigDecimal bigDecimalTest = (new BigDecimal(String.valueOf(cents))).divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
         return formatter.format(bigDecimalTest);
     }
 }
