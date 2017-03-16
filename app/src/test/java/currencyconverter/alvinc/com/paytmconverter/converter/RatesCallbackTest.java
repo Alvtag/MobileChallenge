@@ -18,7 +18,7 @@ public class RatesCallbackTest {
 
     @Mock
     private ExchangeRates exchangeRates;
-    
+
     @Test
     public void onFetchCompleteWithPending() {
         ratesCallbackUnderTest = new RatesCallback(converterPresenter, true);

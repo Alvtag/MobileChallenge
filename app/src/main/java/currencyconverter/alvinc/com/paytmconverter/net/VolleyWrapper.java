@@ -48,7 +48,7 @@ public class VolleyWrapper {
         queue.add(stringRequest);
     }
 
-    private static String replaceBase(String url, String currency) {
+    static String replaceBase(String url, String currency) {
         return url.replace(BASE, currency);
     }
 
