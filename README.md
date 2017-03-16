@@ -10,6 +10,11 @@ couple of comments:
 - currencyPresenter has full test coverage.
 - when a rate is loaded, its inverse (e.g. USD->CAD/ CAD->USD) is calculated. this could save the use a network call if he swaps between 2 currencies.
 
+Design:
+1) MVP to allow easy testing  http://imgur.com/a/ioBGN
+ - a TODO would be to convert to MVVM, change the variables in ConverterPresenter to ObservableFields, and have ConverterActivity bind to them. remove the interface from ConverterActivity.
+2) data binding library on XML layer. saves so much boilerplate.
+
 ~Alvin Fong
 
 
