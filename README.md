@@ -1,4 +1,7 @@
-Hello, so I made a small error when setting up this project. I did my development over at https://github.com/Alvtag/currencyConverter/; I've migrated the code over to this repo, but that means the git history got squelched. The linked project above has the development git history.
+Hello Paytm, 
+So I made a small error when setting up this project. I did my development over at https://github.com/Alvtag/currencyConverter/; I've migrated the code over to this repo, but that means the git history got squelched. The linked project above has the development git history.
+I had some problems with INSTALL_FAILED_INVALID_APK; if so disable Instant Run and it should be fine
+stackoverflow.com/questions/34805780/error-installing-split-apks-com-android-ddmlib-installexception-failed-to-fina
 
 ~Alvin Fong
 
