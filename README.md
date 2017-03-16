@@ -1,4 +1,4 @@
-Hello, so I made a small error when setting up this project. I did my development over at https://github.com/Alvtag/currencyConverter/; I've migrated the code over to this file, but that means the git history got squelched. The linked project above has the development git history.
+Hello, so I made a small error when setting up this project. I did my development over at https://github.com/Alvtag/currencyConverter/; I've migrated the code over to this repo, but that means the git history got squelched. The linked project above has the development git history.
 
 ~Alvin Fong
 
