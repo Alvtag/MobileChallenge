@@ -53,25 +53,36 @@ public class ConverterPresenterTest {
 
         converterPresenterUnderTest.appendChar('1');
 
+
         assertNotNull(converterPresenterUnderTest.inputValueInCentsStringBuilder);
         verify(converterActivityView).setInputValue("0.01");
+        verify(converterActivityView).setOutputValue("");
+        verify(converterActivityView).setInfoText("");
 
         converterPresenterUnderTest.appendChar('2');
         verify(converterActivityView).setInputValue("0.12");
+        verify(converterActivityView, times(2)).setOutputValue("");
+        verify(converterActivityView, times(2)).setInfoText("");
 
         converterPresenterUnderTest.appendChar('3');
         verify(converterActivityView).setInputValue("1.23");
+        verify(converterActivityView, times(3)).setOutputValue("");
+        verify(converterActivityView, times(3)).setInfoText("");
 
         converterPresenterUnderTest.deleteChar();
         verify(converterActivityView, Mockito.times(2)).setInputValue("0.12");
+        verify(converterActivityView, times(4)).setOutputValue("");
+        verify(converterActivityView, times(4)).setInfoText("");
 
         converterPresenterUnderTest.deleteChar();
-        verify(converterActivityView, times(2)).setInputValue("0.01");
+        verify(converterActivityView, times(2)).setInputValue("0.01");;
+        verify(converterActivityView, times(5)).setOutputValue("");
+        verify(converterActivityView, times(5)).setInfoText("");
 
         converterPresenterUnderTest.deleteChar();
-        verify(converterActivityView).setInputValue("");
-        verify(converterActivityView).setOutputValue("");
-        verify(converterActivityView).setConversionRateInfo("");
+        verify(converterActivityView).setInputValue("");;
+        verify(converterActivityView, times(6)).setOutputValue("");
+        verify(converterActivityView, times(6)).setInfoText("");
 
         converterPresenterUnderTest.deleteChar();
         //just to make sure we don't crash
@@ -93,7 +104,7 @@ public class ConverterPresenterTest {
         converterPresenterUnderTest.deleteAllChars();
         verify(converterActivityView).setInputValue("");
         verify(converterActivityView).setOutputValue("");
-        verify(converterActivityView).setConversionRateInfo("");
+        verify(converterActivityView).setInfoText("");
 
         converterPresenterUnderTest.deleteChar();
         //just to make sure we don't crash
@@ -120,7 +131,7 @@ public class ConverterPresenterTest {
 
         assertEquals(1, converterPresenterUnderTest.inputCurrencyChoice);
         verify(converterActivityView).setOutputValue("");
-        verify(converterActivityView).setConversionRateInfo("");
+        verify(converterActivityView).setInfoText("");
     }
 
     @Test
@@ -134,7 +145,7 @@ public class ConverterPresenterTest {
 
         assertEquals(1, converterPresenterUnderTest.outputCurrencyChoice);
         verify(converterActivityView).setOutputValue("");
-        verify(converterActivityView).setConversionRateInfo("");
+        verify(converterActivityView).setInfoText("");
     }
 
     @Test
@@ -214,9 +225,9 @@ public class ConverterPresenterTest {
         converterPresenterUnderTest.convert();
 
         verify(converterActivityView).setOutputValue("");
-        verify(converterActivityView).setConversionRateInfo("");
+        verify(converterActivityView).setInfoText("");
         verify(converterActivityView).setOutputValue("78.00");
-        verify(converterActivityView).setConversionRateInfo("1 USD = 0.78 CAD, as of 01-12-12");
+        verify(converterActivityView).setInfoText("1 USD = 0.78 CAD, as of 01-12-12");
     }
 
     @Test
@@ -245,13 +256,22 @@ public class ConverterPresenterTest {
         converterPresenterUnderTest.convert();
 
         verify(converterActivityView).setOutputValue("");
-        verify(converterActivityView).setConversionRateInfo("");
+        verify(converterActivityView).setInfoText("");
         PowerMockito.verifyStatic();
         VolleyWrapper.getRates("USD", ratesCallback);
     }
 
     @Test
-    public void convertToTwoDecimals() {
-        assertEquals("1.12", ConverterPresenter.convertToTwoDecimals(1.1231231F));
+    public void formatTinyNumber() {
+        assertEquals("0.02", ConverterPresenter.formatNumber(.02111F));
+    }
+    @Test
+    public void formatSmallNumber() {
+        assertEquals("1.12", ConverterPresenter.formatNumber(1.1231231F));
+    }
+
+    @Test
+    public void formatBigNumber() {
+        assertEquals("1,234,567.12", ConverterPresenter.formatNumber(1234567.12F));
     }
 }

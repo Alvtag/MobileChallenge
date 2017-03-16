@@ -8,7 +8,7 @@ public class RateStorage {
     private static RateStorage instance = new RateStorage();
     // a complicated object, the key is <BaseCurrency, TargetCurrency
     //                       the value is <Rate, timestamp>
-    private HashMap<Pair<String, String>, Pair<Float, String>> map = new HashMap<>();
+    HashMap<Pair<String, String>, Pair<Float, String>> map = new HashMap<>();
 
     public static RateStorage getInstance() {
         if (instance == null) {
@@ -51,7 +51,7 @@ public class RateStorage {
         }
     }
 
-    public static class RateNotFoundException extends Exception{
+    public static class RateNotFoundException extends Exception {
     }
 }
 

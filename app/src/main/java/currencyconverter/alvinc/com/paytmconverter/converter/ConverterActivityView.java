@@ -6,7 +6,7 @@ interface ConverterActivityView {
     void setInputValue(String inputValue);
     void setOutputValue(String outputValue);
 
-    void setConversionRateInfo(String conversionRatio);
+    void setInfoText(String conversionRatio);
     void setCurrencies(List<String> currenciesList);
 
     void setLoadingSpinnerVisible();

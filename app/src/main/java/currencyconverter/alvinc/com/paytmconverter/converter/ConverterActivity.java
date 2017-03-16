@@ -58,7 +58,7 @@ public class ConverterActivity extends AppCompatActivity implements ConverterAct
     }
 
     @Override
-    public void setConversionRateInfo(String conversionRatio) {
+    public void setInfoText(String conversionRatio) {
         binding.textViewConversionRatio.setText(conversionRatio);
     }
 

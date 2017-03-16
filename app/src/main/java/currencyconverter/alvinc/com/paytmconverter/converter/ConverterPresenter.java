@@ -5,9 +5,10 @@ import android.support.v4.util.Pair;
 
 import com.android.volley.VolleyError;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import currencyconverter.alvinc.com.paytmconverter.model.ExchangeRates;
@@ -31,8 +32,14 @@ class ConverterPresenter {
         if (inputValueInCentsStringBuilder == null) {
             inputValueInCentsStringBuilder = new StringBuilder();
         }
-        inputValueInCentsStringBuilder.append(c);
-        converterActivityView.setInputValue(convertToTwoDecimals(translateInputToFloat()));
+        if (inputValueInCentsStringBuilder.length() >= 11){
+            converterActivityView.setInfoText("sorry! we only support numbers up to 999,999,999.99");
+        } else{
+            inputValueInCentsStringBuilder.append(c);
+            converterActivityView.setInputValue(formatNumber(translateInputToFloat()));
+            converterActivityView.setOutputValue("");
+            converterActivityView.setInfoText("");
+        }
     }
 
     void deleteChar() {
@@ -43,43 +50,45 @@ class ConverterPresenter {
             return;
         }
         inputValueInCentsStringBuilder.deleteCharAt(inputValueInCentsStringBuilder.length() - 1);
-        converterActivityView.setInputValue(convertToTwoDecimals(translateInputToFloat()));
+        converterActivityView.setInputValue(formatNumber(translateInputToFloat()));
+        converterActivityView.setOutputValue("");
+        converterActivityView.setInfoText("");
     }
 
     void deleteAllChars() {
         inputValueInCentsStringBuilder = null;
         converterActivityView.setInputValue("");
         converterActivityView.setOutputValue("");
-        converterActivityView.setConversionRateInfo("");
+        converterActivityView.setInfoText("");
     }
 
     void setInputCurrencyChoice(int position) {
         if (position >= currenciesList.size()) return;
         inputCurrencyChoice = position;
         converterActivityView.setOutputValue("");
-        converterActivityView.setConversionRateInfo("");
+        converterActivityView.setInfoText("");
     }
 
     void setOutputCurrencyChoice(int position) {
         if (position >= currenciesList.size()) return;
         outputCurrencyChoice = position;
         converterActivityView.setOutputValue("");
-        converterActivityView.setConversionRateInfo("");
+        converterActivityView.setInfoText("");
     }
 
     void convert() {
         String inputCurrency = currenciesList.get(inputCurrencyChoice);
         String outputCurrency = currenciesList.get(outputCurrencyChoice);
         converterActivityView.setOutputValue("");
-        converterActivityView.setConversionRateInfo("");
+        converterActivityView.setInfoText("");
 
         try {
             Pair<Float, String> rateTimeStamp = RateStorage.getInstance().getRate(inputCurrency, outputCurrency);
             float rate = rateTimeStamp.first;
             float result = rate * translateInputToFloat();
 
-            converterActivityView.setOutputValue(convertToTwoDecimals(result));
-            converterActivityView.setConversionRateInfo("1 " + inputCurrency + " = " + rate + " " + outputCurrency + ", as of " + rateTimeStamp.second);
+            converterActivityView.setOutputValue(formatNumber(result));
+            converterActivityView.setInfoText("1 " + inputCurrency + " = " + rate + " " + outputCurrency + ", as of " + rateTimeStamp.second);
         } catch (RateStorage.RateNotFoundException e) {
             converterActivityView.setLoadingSpinnerVisible();
             //todo disable UI elements until network call returns
@@ -93,7 +102,7 @@ class ConverterPresenter {
         }
         String inputValue = inputValueInCentsStringBuilder.toString();
         float valueInCents = Float.valueOf(inputValue);
-        return valueInCents / 100;
+        return valueInCents / 100F;
     }
 
     void loadCurrencies(@Nullable String currency, boolean pendingConversion) {
@@ -127,7 +136,14 @@ class ConverterPresenter {
         converterActivityView.showError(error.toString());
     }
 
-    static String convertToTwoDecimals(float input) {
-        return String.format(Locale.ENGLISH, "%.2f", input);
+    static String formatNumber(float input) {
+        DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance();
+        symbols.setGroupingSeparator(',');
+        DecimalFormat formatter = new DecimalFormat("###,###,##0.00", symbols);
+
+        // for an Indian counting version:
+        // DecimalFormat formatter2 = new DecimalFormat("##,##,##,###.##", symbols2);
+
+        return formatter.format(input);
     }
 }
