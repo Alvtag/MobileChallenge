@@ -49,6 +49,7 @@ public class SharedPrefWrapper {
     static void persistMapToSharedPrefs(HashMap<Pair<String, String>, Pair<Float, String>> map) {
         if (map == null || map.size() == 0) {
             clear();
+            return;
         }
         Gson gson = new Gson();
         String serializedMap = gson.toJson(map);

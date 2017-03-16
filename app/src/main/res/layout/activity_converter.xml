@@ -19,7 +19,6 @@
             android:layout_alignParentTop="true"
             android:background="@android:color/background_light"
             android:gravity="end|center"
-            android:layout_marginRight="@dimen/activity_margin"
             android:minLines="1"
             android:padding="@dimen/text_padding"
             android:textColor="@android:color/black" />

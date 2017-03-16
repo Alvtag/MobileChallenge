@@ -1,5 +1,7 @@
 package currencyconverter.alvinc.com.paytmconverter.converter;
 
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -89,6 +91,24 @@ public class ConverterActivity extends AppCompatActivity implements ConverterAct
         AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
         alertBuilder.setTitle(getString(R.string.error_connection));
         alertBuilder.setMessage(error);
+        alertBuilder.setCancelable(false);
+        alertBuilder.setNegativeButton("Close App", new Dialog.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+            }
+        });
+
+        if (converterPresenter.currenciesList != null && converterPresenter.currenciesList.size() > 0) {
+            // if we have currency data we can let the user play in offline mode
+            // if we don't even have a currency list we risk running into nulls in various places.
+            alertBuilder.setPositiveButton("Continue", new Dialog.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    //do nothing, let the user enjoy offline mode.
+                }
+            });
+        }
         alertBuilder.create().show();
     }
 

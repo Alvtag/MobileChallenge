@@ -76,6 +76,9 @@ public class RateStorage {
      * if the currency is not in the local DB this returns -1 for both
      */
     public Pair<Float, String> getRate(String baseCurrency, String targetCurrency) throws RateNotFoundException {
+        if (baseCurrency.equals(targetCurrency)){
+            return (new Pair<>(1.0F, "today and forever"));
+        }
         Pair pair = new Pair<>(baseCurrency, targetCurrency);
         if (map.containsKey(pair)) {
             return map.get(pair);

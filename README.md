@@ -30,10 +30,16 @@ Data Persistence:
 
 Caching:
 - whenever the user triggers a conversion, an info string appears showing the per-unit rate and date that the info was accessed
-- the cache is only cleared when the user hits the [CLEAR EXCHANGE RATES] button.
+- the cache is only cleared when the user hits the [CLEAR EXCHANGE RATES] button. this should satisfy the 30 minute requirement,
+  and makes caching strategy user-directed.
 
 Offline Mode:
-- whatever data the user
+- whatever data the user has loaded up to this point in time, is still available. e.g. if the user converted CAD->EUR,
+  we would fetch the rates from fixer.io with CAD as the base, receiving all CAD-to-OTHERCURRENECIES. that means in offline mode
+  USD>CAD, HKD>CAD, CAD>HKD, etc are all available.
+- obviously if the user clears his data while in offline mode, he wouldn't have much else to do after.
+- offline mode is only available if we have currenly data from a previous operation.
+
 
 Testing coverage:
 - I do realize I don't have 100% test coverage on the model/ presenter layers, but I did want to demonstrate some unit test techniques
