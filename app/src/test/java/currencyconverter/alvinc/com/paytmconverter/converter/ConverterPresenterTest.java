@@ -93,18 +93,21 @@ public class ConverterPresenterTest {
         assertNull(converterPresenterUnderTest.inputValueInCentsStringBuilder);
 
         converterPresenterUnderTest.appendChar('1');
-
+        verify(converterActivityView).setOutputValue("");
+        verify(converterActivityView).setInfoText("");
         assertNotNull(converterPresenterUnderTest.inputValueInCentsStringBuilder);
         verify(converterActivityView).setInputValue("0.01");
 
         converterPresenterUnderTest.appendChar('2');
         verify(converterActivityView).setInputValue("0.12");
+        verify(converterActivityView, times(2)).setOutputValue("");
+        verify(converterActivityView, times(2)).setInfoText("");
 
 
         converterPresenterUnderTest.deleteAllChars();
         verify(converterActivityView).setInputValue("");
-        verify(converterActivityView).setOutputValue("");
-        verify(converterActivityView).setInfoText("");
+        verify(converterActivityView, times(3)).setOutputValue("");
+        verify(converterActivityView, times(3)).setInfoText("");
 
         converterPresenterUnderTest.deleteChar();
         //just to make sure we don't crash
@@ -221,11 +224,10 @@ public class ConverterPresenterTest {
         converterPresenterUnderTest.appendChar('0');
         converterPresenterUnderTest.appendChar('0');
         converterPresenterUnderTest.appendChar('0');
-
         converterPresenterUnderTest.convert();
 
-        verify(converterActivityView).setOutputValue("");
-        verify(converterActivityView).setInfoText("");
+        verify(converterActivityView, times(6)).setOutputValue("");
+        verify(converterActivityView, times(6)).setInfoText("");
         verify(converterActivityView).setOutputValue("78.00");
         verify(converterActivityView).setInfoText("1 USD = 0.78 CAD, as of 01-12-12");
     }
@@ -247,16 +249,16 @@ public class ConverterPresenterTest {
         PowerMockito.whenNew(RatesCallback.class)
                 .withArguments(converterPresenterUnderTest, true)
                 .thenReturn(ratesCallback);
+
         converterPresenterUnderTest.appendChar('1');
         converterPresenterUnderTest.appendChar('0');
         converterPresenterUnderTest.appendChar('0');
         converterPresenterUnderTest.appendChar('0');
         converterPresenterUnderTest.appendChar('0');
-
         converterPresenterUnderTest.convert();
 
-        verify(converterActivityView).setOutputValue("");
-        verify(converterActivityView).setInfoText("");
+        verify(converterActivityView, times(6)).setOutputValue("");
+        verify(converterActivityView, times(6)).setInfoText("");
         PowerMockito.verifyStatic();
         VolleyWrapper.getRates("USD", ratesCallback);
     }

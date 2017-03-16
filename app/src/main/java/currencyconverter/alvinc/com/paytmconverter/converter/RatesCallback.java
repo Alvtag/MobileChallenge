@@ -7,8 +7,8 @@ import java.lang.ref.WeakReference;
 import currencyconverter.alvinc.com.paytmconverter.model.ExchangeRates;
 import currencyconverter.alvinc.com.paytmconverter.net.VolleyWrapper;
 
-public class RatesCallback implements VolleyWrapper.ExchangeRatesCallback {
-    WeakReference<ConverterPresenter> converterPresenterWeakReference;
+class RatesCallback implements VolleyWrapper.ExchangeRatesCallback {
+    private WeakReference<ConverterPresenter> converterPresenterWeakReference;
     private boolean pendingConversion;
 
     /**

@@ -36,12 +36,14 @@ public class VolleyWrapper {
                         ExchangeRates exchangeRates = gson.fromJson(json, ExchangeRates.class);
                         exchangeRatesCallback.onFetchComplete(exchangeRates);
                     }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                exchangeRatesCallback.onError(error);
-            }
-        });
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        exchangeRatesCallback.onError(error);
+                    }
+                }
+        );
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
     }
