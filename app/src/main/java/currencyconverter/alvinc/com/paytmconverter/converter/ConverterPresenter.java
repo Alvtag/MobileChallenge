@@ -18,6 +18,7 @@ import currencyconverter.alvinc.com.paytmconverter.model.RateStorage;
 import currencyconverter.alvinc.com.paytmconverter.net.VolleyWrapper;
 
 class ConverterPresenter {
+    private static final int MAX_DIGITS = 14;
     StringBuilder inputValueInCentsStringBuilder;
     int outputCurrencyChoice = 0;
     int inputCurrencyChoice = 0;
@@ -36,16 +37,23 @@ class ConverterPresenter {
 
     ConverterPresenter(ConverterActivityView converterActivityView) {
         this.converterActivityView = converterActivityView;
-        loadCurrencies(null, false);
+        RateStorage rateStorage = RateStorage.getInstance();
+        boolean hasPrevData = rateStorage.retrieveMapFromSharedPrefs();
+        if (hasPrevData) {
+            currenciesList = rateStorage.getCurrenciesList();
+            converterActivityView.setCurrencies(currenciesList);
+        } else {
+            loadCurrencies(null, false);
+        }
     }
 
     void appendChar(char c) {
         if (inputValueInCentsStringBuilder == null) {
             inputValueInCentsStringBuilder = new StringBuilder();
         }
-        if (inputValueInCentsStringBuilder.length() >= 14){
+        if (inputValueInCentsStringBuilder.length() >= MAX_DIGITS) {
             converterActivityView.setInfoText("sorry! we only support numbers up to 999,999,999,999.99");
-        } else{
+        } else {
             inputValueInCentsStringBuilder.append(c);
             long cents = translateInputToCents();
             String inputValueToDisplay = formatNumber(cents);
@@ -90,7 +98,7 @@ class ConverterPresenter {
     }
 
     long translateInputToCents() {
-        if (inputValueInCentsStringBuilder == null || inputValueInCentsStringBuilder.length() == 0){
+        if (inputValueInCentsStringBuilder == null || inputValueInCentsStringBuilder.length() == 0) {
             return 0;
         }
         String inputValue = inputValueInCentsStringBuilder.toString();
@@ -149,6 +157,14 @@ class ConverterPresenter {
             converterActivityView.setLoadingSpinnerVisible();
             loadCurrencies(inputCurrency, true);
         }
+    }
+
+    void persistMap() {
+        RateStorage.getInstance().persistMap();
+    }
+    
+    void clearData(){
+        RateStorage.getInstance().clearData();
     }
 
     static String formatNumber(long cents) {

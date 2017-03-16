@@ -40,11 +40,23 @@ public class ConverterActivity extends AppCompatActivity implements ConverterAct
         binding.buttonZero.setOnClickListener(clickListener);
         binding.buttonDelete.setOnClickListener(clickListener);
         binding.buttonConvert.setOnClickListener(clickListener);
+        binding.resetRates.setOnClickListener(clickListener);
 
         LongClickListener longClickListener = new LongClickListener(this);
         binding.buttonDelete.setOnLongClickListener(longClickListener);
 
         converterPresenter = new ConverterPresenter(this);
+    }
+
+    @Override
+    public void onBackPressed() {
+        finish();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        converterPresenter.persistMap();
     }
 
     @Override
@@ -146,6 +158,9 @@ public class ConverterActivity extends AppCompatActivity implements ConverterAct
                 break;
             case R.id.button_convert:
                 converterPresenter.convert();
+                break;
+            case R.id.reset_rates:
+                converterPresenter.clearData();
                 break;
         }
     }

@@ -15,4 +15,5 @@
     <string name="from">From</string>
     <string name="to">To</string>
     <string name="error_connection">Connection Error</string>
+    <string name="reset_rates">Clear cached Exchange Rates</string>
 </resources>

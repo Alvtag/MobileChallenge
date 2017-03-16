@@ -19,6 +19,7 @@
             android:layout_alignParentTop="true"
             android:background="@android:color/background_light"
             android:gravity="end|center"
+            android:layout_marginRight="@dimen/activity_margin"
             android:minLines="1"
             android:padding="@dimen/text_padding"
             android:textColor="@android:color/black" />
@@ -30,7 +31,9 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_below="@id/textView_input"
-            android:layout_margin="@dimen/activity_margin"
+            android:layout_marginRight="@dimen/activity_margin"
+            android:layout_marginLeft="@dimen/activity_margin"
+            android:layout_marginTop="@dimen/activity_margin"
             android:gravity="end"
             android:minHeight="70dp"
             android:minWidth="100dp"
@@ -111,6 +114,18 @@
             android:padding="@dimen/text_padding"
             android:textColor="@android:color/white" />
 
+        <Button
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:id="@+id/reset_rates"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/button_padding"
+            android:layout_marginTop="@dimen/activity_margin"
+            android:text="@string/reset_rates"
+            android:textSize="@dimen/calculator_button_font_sp" />
+
         <!-- Nested LinearLayouts is generally bad, But I'm OK with it for one vertical/one horizontal
                 makes dynamically resizing elements' height/width trivial, instead of doing a grid/table
                 that I would have to dynamically adjust later on.-->
@@ -120,7 +135,7 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_below="@id/textView_conversion_ratio"
-            android:layout_margin="@dimen/activity_margin"
+            android:layout_above="@id/reset_rates"
             android:orientation="vertical"
             android:weightSum="1">
 

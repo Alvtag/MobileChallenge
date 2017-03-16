@@ -6,9 +6,6 @@ stackoverflow.com/questions/34805780/error-installing-split-apks-com-android-ddm
 https://code.google.com/p/android/issues/detail?id=227610
 
 Some of comments:
-- features I debated including (but didn't, since we all know feature creep is terrible):
-  - button for swapping the input and output currencies
-  - persisting exchange rates data across app sessions (i.e. offline mode)
 - when a rate is loaded, its inverse (e.g. USD->CAD/ CAD->USD) is calculated. this could save the use a network call if he swaps between 2 currencies.
 - not too much work was put into Volley wrappers, an expansion to the app would benefit from more structure around this area.
 - model/presenter classes have test coverage.
@@ -25,6 +22,10 @@ Logic choices:
   It felt more natural for the caller to figure out how many cents is needed, then for formatNumber to change that to
   dollars.cents. I think this keeps formaNumber lightweight.
 
+Data Persistence:
+- a hashMap is used to store the exchange rates, across app sessions the hashmap is serialized and kept in sharedPrefs.
+  http://stackoverflow.com/questions/8516812/shared-preferences-max-length-of-a-single-value
+
 Design:
 1) MVP to allow easy testing, please see http://imgur.com/a/ioBGN
 2) data binding library on XML layer. saves so much boilerplate.
@@ -32,6 +33,7 @@ Design:
 Future steps:
 1) convert to MVVM, change the variables in ConverterPresenter to ObservableFields,
  and have ConverterActivity bind to them. remove the interface from ConverterActivity.
+2) in offline mode, indicate which currencies have info.
 
 ~Alvin Fong
 
