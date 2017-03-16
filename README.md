@@ -9,7 +9,12 @@ couple of comments:
   - persisting exchange rates data across app sessions (i.e. offline mode)
 - currencyPresenter has full test coverage.
 - when a rate is loaded, its inverse (e.g. USD->CAD/ CAD->USD) is calculated. this could save the use a network call if he swaps between 2 currencies.
-
+- not too much work was put into Volley wrappers, an expansion to the app would benefit from more structure around this area.
+- missing test for VolleyWrapper.getRates() due to 
+  java.lang.IllegalStateException: Failed to transform class with name com.android.volley.toolbox.Volley. 
+  Reason: cannot find org.apache.http.client.HttpClient
+  this prevented me from powerMockito'ing Volly, but definitely worth researching in the future...
+  
 Design:
 1) MVP to allow easy testing  http://imgur.com/a/ioBGN
  - a TODO would be to convert to MVVM, change the variables in ConverterPresenter to ObservableFields, and have ConverterActivity bind to them. remove the interface from ConverterActivity.
