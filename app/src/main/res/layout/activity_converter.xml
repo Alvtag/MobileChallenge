@@ -1,0 +1,272 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <RelativeLayout xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="@dimen/activity_margin"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        tools:context="currencyconverter.alvinc.com.paytmconverter.converter.ConverterActivity"
+        tools:ignore="NestedWeights">
+
+        <TextView
+            android:id="@+id/textView_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:background="@android:color/background_light"
+            android:gravity="end|center"
+            android:minLines="1"
+            android:padding="@dimen/text_padding"
+            android:textColor="@android:color/black" />
+
+        <Spinner
+            android:id="@+id/spinner_currency_input"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/textView_input"
+            android:layout_margin="@dimen/activity_margin"
+            android:gravity="end"
+            android:minHeight="70dp"
+            android:minWidth="100dp"
+            android:padding="@dimen/button_padding" />
+
+        <TextView
+            android:id="@+id/label_from"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/spinner_currency_input"
+            android:layout_alignTop="@id/spinner_currency_input"
+            android:layout_toLeftOf="@id/spinner_currency_input"
+            android:layout_toStartOf="@id/spinner_currency_input"
+            android:gravity="center_vertical|end"
+            android:minWidth="50dp"
+            android:text="@string/from"
+            android:textColor="@android:color/white" />
+
+        <ProgressBar
+            android:id="@+id/progressbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/label_from"
+            android:layout_alignTop="@id/label_from"
+            android:layout_toLeftOf="@id/label_from"
+            android:layout_toStartOf="@id/label_from"
+            android:gravity="center_vertical|end"
+            android:visibility="gone" />
+
+        <Spinner
+            android:id="@+id/spinner_currency_output"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/spinner_currency_input"
+            android:layout_margin="@dimen/activity_margin"
+            android:gravity="end"
+            android:minHeight="70dp"
+            android:minWidth="100dp"
+            android:padding="@dimen/button_padding" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/spinner_currency_output"
+            android:layout_alignTop="@id/spinner_currency_output"
+            android:layout_toLeftOf="@id/spinner_currency_output"
+            android:layout_toStartOf="@id/spinner_currency_output"
+            android:gravity="center_vertical|end"
+            android:minWidth="50dp"
+            android:text="@string/to"
+            android:textColor="@android:color/white" />
+
+        <TextView
+            android:id="@+id/textView_output"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@id/spinner_currency_output"
+            android:background="@android:color/background_light"
+            android:gravity="end|center"
+            android:minLines="1"
+            android:padding="@dimen/text_padding"
+            android:textColor="@android:color/black" />
+
+        <TextView
+            android:id="@+id/textView_conversion_ratio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@id/textView_output"
+            android:background="@android:color/darker_gray"
+            android:gravity="end|center"
+            android:minLines="1"
+            android:padding="@dimen/text_padding"
+            android:textColor="@android:color/white" />
+
+        <!-- Nested LinearLayouts is generally bad, But I'm OK with it for one vertical/one horizontal
+                makes dynamically resizing elements' height/width trivial, instead of doing a grid/table
+                that I would have to dynamically adjust later on.-->
+        <LinearLayout xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@id/textView_conversion_ratio"
+            android:layout_margin="@dimen/activity_margin"
+            android:orientation="vertical"
+            android:weightSum="1">
+
+
+            <LinearLayout xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight=".25"
+                android:orientation="horizontal"
+                android:weightSum="1">
+
+                <Button
+                    android:id="@+id/button_one"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight=".333"
+                    android:padding="@dimen/button_padding"
+                    android:text="@string/one"
+                    android:textSize="@dimen/calculator_button_font_sp" />
+
+                <Button
+                    android:id="@+id/button_two"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight=".333"
+                    android:padding="@dimen/button_padding"
+                    android:text="@string/two"
+                    android:textSize="@dimen/calculator_button_font_sp" />
+
+                <Button
+                    android:id="@+id/button_three"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight=".333"
+                    android:padding="@dimen/button_padding"
+                    android:text="@string/three"
+                    android:textSize="@dimen/calculator_button_font_sp" />
+            </LinearLayout>
+
+
+            <LinearLayout xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight=".25"
+                android:orientation="horizontal"
+                android:weightSum="1">
+
+                <Button
+                    android:id="@+id/button_four"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight=".333"
+                    android:padding="@dimen/button_padding"
+                    android:text="@string/four"
+                    android:textSize="@dimen/calculator_button_font_sp" />
+
+                <Button
+                    android:id="@+id/button_five"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight=".333"
+                    android:padding="@dimen/button_padding"
+                    android:text="@string/five"
+                    android:textSize="@dimen/calculator_button_font_sp" />
+
+                <Button
+                    android:id="@+id/button_six"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight=".333"
+                    android:padding="@dimen/button_padding"
+                    android:text="@string/six"
+                    android:textSize="@dimen/calculator_button_font_sp" />
+            </LinearLayout>
+
+            <LinearLayout xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight=".25"
+                android:orientation="horizontal"
+                android:weightSum="1">
+
+                <Button
+                    android:id="@+id/button_seven"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight=".333"
+                    android:padding="@dimen/button_padding"
+                    android:text="@string/seven"
+                    android:textSize="@dimen/calculator_button_font_sp" />
+
+                <Button
+                    android:id="@+id/button_eight"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight=".333"
+                    android:padding="@dimen/button_padding"
+                    android:text="@string/eight"
+                    android:textSize="@dimen/calculator_button_font_sp" />
+
+                <Button
+                    android:id="@+id/button_nine"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight=".333"
+                    android:padding="@dimen/button_padding"
+                    android:text="@string/nine"
+                    android:textSize="@dimen/calculator_button_font_sp" />
+            </LinearLayout>
+
+
+            <LinearLayout xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight=".25"
+                android:orientation="horizontal"
+                android:weightSum="1">
+
+                <ImageButton
+                    android:id="@+id/button_delete"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight=".333"
+                    android:padding="@dimen/button_padding"
+                    app:srcCompat="@android:drawable/ic_input_delete"
+                    tools:ignore="ContentDescription" />
+
+                <Button
+                    android:id="@+id/button_zero"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight=".333"
+                    android:padding="@dimen/button_padding"
+                    android:text="@string/zero"
+                    android:textSize="@dimen/calculator_button_font_sp" />
+
+                <ImageButton
+                    android:id="@+id/button_convert"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight=".333"
+                    android:padding="@dimen/activity_margin"
+                    app:srcCompat="@android:drawable/ic_media_play"
+                    tools:ignore="ContentDescription" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </RelativeLayout>
+</layout>
