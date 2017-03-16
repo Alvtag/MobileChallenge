@@ -11,7 +11,7 @@ import java.util.HashMap;
 
 import currencyconverter.alvinc.com.paytmconverter.application.BaseApplication;
 
-class SharedPrefWrapper {
+public class SharedPrefWrapper {
     /**
      * @return true if a map of currencies was read from sharedPrefs
      */
@@ -47,11 +47,20 @@ class SharedPrefWrapper {
     }
 
     static void persistMapToSharedPrefs(HashMap<Pair<String, String>, Pair<Float, String>> map) {
-
+        if (map == null || map.size() == 0) {
+            clear();
+        }
         Gson gson = new Gson();
         String serializedMap = gson.toJson(map);
         SharedPreferences.Editor editor =
                 BaseApplication.getContext().getSharedPreferences("shared_prefs", Context.MODE_PRIVATE).edit();
         editor.putString("currencyMap", serializedMap).apply();
+    }
+
+    static void clear(){
+        BaseApplication.getContext().getSharedPreferences("shared_prefs", Context.MODE_PRIVATE)
+                .edit()
+                .clear()
+                .apply();
     }
 }

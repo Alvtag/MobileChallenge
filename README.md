@@ -20,11 +20,23 @@ Logic choices:
 - BigDecimals are used for all arithmetic
 - converterPresenter.formatNumber(long cents) : I chose to have the signature take LONG instead of String because
   It felt more natural for the caller to figure out how many cents is needed, then for formatNumber to change that to
-  dollars.cents. I think this keeps formaNumber lightweight.
+  "###.##". I think this keeps formatNumber() lightweight.
 
 Data Persistence:
 - a hashMap is used to store the exchange rates, across app sessions the hashmap is serialized and kept in sharedPrefs.
   http://stackoverflow.com/questions/8516812/shared-preferences-max-length-of-a-single-value
+- sharedPref data persistence is triggered by OnDestroy method
+- persistent data is read upon initializing converterPresenter, during activity start-up.
+
+Caching:
+- whenever the user triggers a conversion, an info string appears showing the per-unit rate and date that the info was accessed
+- the cache is only cleared when the user hits the [CLEAR EXCHANGE RATES] button.
+
+Offline Mode:
+- whatever data the user
+
+Testing coverage:
+- I do realize I don't have 100% test coverage on the model/ presenter layers, but I did want to demonstrate some unit test techniques
 
 Design:
 1) MVP to allow easy testing, please see http://imgur.com/a/ioBGN
@@ -34,6 +46,7 @@ Future steps:
 1) convert to MVVM, change the variables in ConverterPresenter to ObservableFields,
  and have ConverterActivity bind to them. remove the interface from ConverterActivity.
 2) in offline mode, indicate which currencies have info.
+3) complete test coverage.
 
 ~Alvin Fong
 

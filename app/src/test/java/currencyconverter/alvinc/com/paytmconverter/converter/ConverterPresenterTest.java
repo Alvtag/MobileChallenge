@@ -23,6 +23,7 @@ import java.util.Map;
 
 import currencyconverter.alvinc.com.paytmconverter.model.ExchangeRates;
 import currencyconverter.alvinc.com.paytmconverter.model.RateStorage;
+import currencyconverter.alvinc.com.paytmconverter.model.SharedPrefWrapper;
 import currencyconverter.alvinc.com.paytmconverter.net.VolleyWrapper;
 
 import static org.junit.Assert.assertEquals;
@@ -34,7 +35,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({VolleyWrapper.class, ConverterPresenter.class, RateStorage.class})
+@PrepareForTest({VolleyWrapper.class, SharedPrefWrapper.class, ConverterPresenter.class, RateStorage.class})
 public class ConverterPresenterTest {
     @Mock
     private ConverterActivityView converterActivityView;
@@ -44,6 +45,7 @@ public class ConverterPresenterTest {
     @Before
     public void setup() {
         PowerMockito.mockStatic(VolleyWrapper.class);
+        PowerMockito.mockStatic(SharedPrefWrapper.class);
         converterPresenterUnderTest = new ConverterPresenter(converterActivityView);
     }
 
@@ -201,9 +203,12 @@ public class ConverterPresenterTest {
         RateStorage mockRateStorage = mock(RateStorage.class);
         PowerMockito.when(RateStorage.getInstance()).thenReturn(mockRateStorage);
 
-        converterPresenterUnderTest.onNewRatesData(exchangeRates);
+        converterPresenterUnderTest = new ConverterPresenter(converterActivityView);
+        verify(converterActivityView, times(1)).setCurrencies(Matchers.anyListOf(String.class));
 
-        verify(converterActivityView).setCurrencies(Matchers.anyListOf(String.class));
+        converterPresenterUnderTest.onNewRatesData(exchangeRates);
+        verify(converterActivityView, times(2)).setCurrencies(Matchers.anyListOf(String.class));
+
         assertEquals(3, converterPresenterUnderTest.currenciesList.size());
         assertEquals("EUR", converterPresenterUnderTest.currenciesList.get(0));
         assertEquals("AUD", converterPresenterUnderTest.currenciesList.get(1));

@@ -44,6 +44,7 @@ public class VolleyWrapper {
                     }
                 }
         );
+        stringRequest.setShouldCache(false);
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
     }

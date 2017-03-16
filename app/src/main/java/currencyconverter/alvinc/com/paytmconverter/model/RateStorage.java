@@ -1,16 +1,12 @@
 package currencyconverter.alvinc.com.paytmconverter.model;
 
-import android.content.Context;
 import android.support.v4.util.Pair;
 
-import com.google.gson.Gson;
-
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-
-import currencyconverter.alvinc.com.paytmconverter.application.BaseApplication;
 
 public class RateStorage {
     private static RateStorage instance = new RateStorage();
@@ -61,19 +57,18 @@ public class RateStorage {
             currenciesSet.add(keyPair.first);
             currenciesSet.add(keyPair.second);
         }
-
-        return new ArrayList<>(currenciesSet);
+        ArrayList<String> currenciesList = new ArrayList<>(currenciesSet);
+        Collections.sort(currenciesList);
+        return currenciesList;
     }
 
-    public void persistMap() {
+    public void persistData() {
         SharedPrefWrapper.persistMapToSharedPrefs(map);
     }
 
     public void clearData() {
-        BaseApplication.getContext().getSharedPreferences("shared_prefs", Context.MODE_PRIVATE)
-                .edit()
-                .clear()
-                .apply();
+        this.map = new HashMap<>();
+        SharedPrefWrapper.clear();
     }
 
     /**

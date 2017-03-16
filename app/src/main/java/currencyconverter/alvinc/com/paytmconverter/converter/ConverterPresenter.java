@@ -159,8 +159,8 @@ class ConverterPresenter {
         }
     }
 
-    void persistMap() {
-        RateStorage.getInstance().persistMap();
+    void persistData() {
+        RateStorage.getInstance().persistData();
     }
     
     void clearData(){

@@ -56,7 +56,7 @@ public class ConverterActivity extends AppCompatActivity implements ConverterAct
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        converterPresenter.persistMap();
+        converterPresenter.persistData();
     }
 
     @Override
