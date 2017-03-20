@@ -13,6 +13,8 @@ Some of comments:
       ```java.lang.IllegalStateException: Failed to transform class with name com.android.volley.toolbox.Volley.
       Reason: cannot find org.apache.http.client.HttpClient```
       this prevented me from powerMockito'ing Volley, but definitely worth researching in the future.
+- I didn't do the fragment-instead-of-activity deal; since all the logic is in presenter layer,
+  it would be super-simple to move to fragments/ custom-view (square style) if necessary.
 
 Logic choices:
 - input value is stored internally in a stringBuilder. this allows me to easily append/remove digits from the end.
