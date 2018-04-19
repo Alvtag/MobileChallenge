@@ -1,4 +1,4 @@
-package currencyconverter.alvinc.com.paytmconverter.converter;
+package currencyconverter.alvinc.com.currencyconverter.converter;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -6,7 +6,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import currencyconverter.alvinc.com.paytmconverter.model.ExchangeRates;
+import currencyconverter.alvinc.com.currencyconverter.model.ExchangeRates;
 
 @RunWith(PowerMockRunner.class)
 public class RatesCallbackTest {

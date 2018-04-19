@@ -1,4 +1,4 @@
-package currencyconverter.alvinc.com.paytmconverter.converter;
+package currencyconverter.alvinc.com.currencyconverter.converter;
 
 
 import android.support.v4.util.Pair;
@@ -21,10 +21,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import currencyconverter.alvinc.com.paytmconverter.model.ExchangeRates;
-import currencyconverter.alvinc.com.paytmconverter.model.RateStorage;
-import currencyconverter.alvinc.com.paytmconverter.model.SharedPrefWrapper;
-import currencyconverter.alvinc.com.paytmconverter.net.VolleyWrapper;
+import currencyconverter.alvinc.com.currencyconverter.model.ExchangeRates;
+import currencyconverter.alvinc.com.currencyconverter.model.RateStorage;
+import currencyconverter.alvinc.com.currencyconverter.model.SharedPrefWrapper;
+import currencyconverter.alvinc.com.currencyconverter.net.VolleyWrapper;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

@@ -1,4 +1,4 @@
-package currencyconverter.alvinc.com.paytmconverter.converter;
+package currencyconverter.alvinc.com.currencyconverter.converter;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -13,8 +13,8 @@ import android.widget.ArrayAdapter;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
-import currencyconverter.alvinc.com.paytmconverter.R;
-import currencyconverter.alvinc.com.paytmconverter.databinding.ActivityConverterBinding;
+import currencyconverter.alvinc.com.currencyconverter.R;
+import currencyconverter.alvinc.com.currencyconverter.databinding.ActivityConverterBinding;
 
 public class ConverterActivity extends AppCompatActivity implements ConverterActivityView {
 

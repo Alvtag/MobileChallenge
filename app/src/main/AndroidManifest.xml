@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="currencyconverter.alvinc.com.paytmconverter">
+    package="currencyconverter.alvinc.com.currencyconverter">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:name=".application.BaseApplication"
+        android:name="currencyconverter.alvinc.com.currencyconverter.application.BaseApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".converter.ConverterActivity"
+            android:name="currencyconverter.alvinc.com.currencyconverter.converter.ConverterActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait">
             <intent-filter>

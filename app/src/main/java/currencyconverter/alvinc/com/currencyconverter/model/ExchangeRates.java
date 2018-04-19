@@ -1,4 +1,4 @@
-package currencyconverter.alvinc.com.paytmconverter.model;
+package currencyconverter.alvinc.com.currencyconverter.model;
 
 import java.util.Map;
 

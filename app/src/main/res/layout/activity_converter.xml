@@ -7,7 +7,7 @@
         android:layout_margin="@dimen/activity_margin"
         android:gravity="center_horizontal"
         android:orientation="vertical"
-        tools:context="currencyconverter.alvinc.com.paytmconverter.converter.ConverterActivity"
+        tools:context="currencyconverter.alvinc.com.currencyconverter.converter.ConverterActivity"
         tools:ignore="NestedWeights">
 
         <TextView

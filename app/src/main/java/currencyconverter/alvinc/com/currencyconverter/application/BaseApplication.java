@@ -1,4 +1,4 @@
-package currencyconverter.alvinc.com.paytmconverter.application;
+package currencyconverter.alvinc.com.currencyconverter.application;
 
 import android.annotation.SuppressLint;
 import android.app.Application;

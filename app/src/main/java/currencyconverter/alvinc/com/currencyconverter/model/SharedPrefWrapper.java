@@ -1,4 +1,4 @@
-package currencyconverter.alvinc.com.paytmconverter.model;
+package currencyconverter.alvinc.com.currencyconverter.model;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -9,7 +9,7 @@ import com.google.gson.internal.LinkedTreeMap;
 
 import java.util.HashMap;
 
-import currencyconverter.alvinc.com.paytmconverter.application.BaseApplication;
+import currencyconverter.alvinc.com.currencyconverter.application.BaseApplication;
 
 public class SharedPrefWrapper {
     /**

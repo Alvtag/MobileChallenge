@@ -1,4 +1,4 @@
-package currencyconverter.alvinc.com.paytmconverter.net;
+package currencyconverter.alvinc.com.currencyconverter.net;
 
 import android.support.annotation.Nullable;
 
@@ -10,8 +10,8 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 
-import currencyconverter.alvinc.com.paytmconverter.application.BaseApplication;
-import currencyconverter.alvinc.com.paytmconverter.model.ExchangeRates;
+import currencyconverter.alvinc.com.currencyconverter.application.BaseApplication;
+import currencyconverter.alvinc.com.currencyconverter.model.ExchangeRates;
 
 public class VolleyWrapper {
     private final static String URL = "http://api.fixer.io/latest?base=%%BASE%%";

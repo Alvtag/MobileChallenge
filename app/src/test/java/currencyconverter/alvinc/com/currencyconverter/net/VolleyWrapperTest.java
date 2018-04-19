@@ -1,16 +1,13 @@
-package currencyconverter.alvinc.com.paytmconverter.net;
-
-import com.android.volley.toolbox.Volley;
+package currencyconverter.alvinc.com.currencyconverter.net;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import currencyconverter.alvinc.com.paytmconverter.application.BaseApplication;
+import currencyconverter.alvinc.com.currencyconverter.application.BaseApplication;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({BaseApplication.class})

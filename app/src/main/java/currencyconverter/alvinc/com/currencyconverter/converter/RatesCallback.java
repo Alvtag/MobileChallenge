@@ -1,11 +1,11 @@
-package currencyconverter.alvinc.com.paytmconverter.converter;
+package currencyconverter.alvinc.com.currencyconverter.converter;
 
 import com.android.volley.VolleyError;
 
 import java.lang.ref.WeakReference;
 
-import currencyconverter.alvinc.com.paytmconverter.model.ExchangeRates;
-import currencyconverter.alvinc.com.paytmconverter.net.VolleyWrapper;
+import currencyconverter.alvinc.com.currencyconverter.model.ExchangeRates;
+import currencyconverter.alvinc.com.currencyconverter.net.VolleyWrapper;
 
 class RatesCallback implements VolleyWrapper.ExchangeRatesCallback {
     private WeakReference<ConverterPresenter> converterPresenterWeakReference;

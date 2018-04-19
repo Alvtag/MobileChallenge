@@ -1,4 +1,4 @@
-package currencyconverter.alvinc.com.paytmconverter.converter;
+package currencyconverter.alvinc.com.currencyconverter.converter;
 
 import android.support.annotation.Nullable;
 import android.support.v4.util.Pair;
@@ -13,9 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import currencyconverter.alvinc.com.paytmconverter.model.ExchangeRates;
-import currencyconverter.alvinc.com.paytmconverter.model.RateStorage;
-import currencyconverter.alvinc.com.paytmconverter.net.VolleyWrapper;
+import currencyconverter.alvinc.com.currencyconverter.model.ExchangeRates;
+import currencyconverter.alvinc.com.currencyconverter.model.RateStorage;
+import currencyconverter.alvinc.com.currencyconverter.net.VolleyWrapper;
 
 class ConverterPresenter {
     private static final int MAX_DIGITS = 14;

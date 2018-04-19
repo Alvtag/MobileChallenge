@@ -7,7 +7,7 @@ android {
         enabled = true
     }
     defaultConfig {
-        applicationId "currencyconverter.alvinc.com.paytmconverter"
+        applicationId "com.alvinc.currencyconverter"
         minSdkVersion 9
         targetSdkVersion 25
         compileSdkVersion = 25

@@ -1,8 +1,8 @@
-Hello Paytm, 
+Hello,
 So I made a small error when setting up this project. I did most of my development over at https://github.com/Alvtag/currencyConverter/; I've migrated the code over to this repo, but that means the git history got squelched. The linked project above has the development git history.
 
 I had some problems with INSTALL_FAILED_INVALID_APK; if so disable Instant Run and it should be fine
-stackoverflow.com/questions/34805780/error-installing-split-apks-com-android-ddmlib-installexception-failed-to-fina
+stackOverflow.com/questions/34805780/error-installing-split-apks-com-android-ddmlib-installexception-failed-to-fina
 https://code.google.com/p/android/issues/detail?id=227610
 
 Some of comments:
