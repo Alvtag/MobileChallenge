@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Currency Converter</string>
+
+    <!--xml complains if strings are hard coded there-->
     <string name="one">1</string>
     <string name="two">2</string>
     <string name="three">3</string>
@@ -11,7 +13,7 @@
     <string name="nine">9</string>
     <string name="zero">0</string>
 
-    <!-- Strings related to login -->
+    <!-- Strings declaration so we could potentially localize -->
     <string name="from">From</string>
     <string name="to">To</string>
     <string name="error_connection">Connection Error</string>

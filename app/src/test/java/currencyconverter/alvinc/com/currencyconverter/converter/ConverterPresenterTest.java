@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import currencyconverter.alvinc.com.currencyconverter.model.ExchangeRates;
-import currencyconverter.alvinc.com.currencyconverter.model.RateStorage;
-import currencyconverter.alvinc.com.currencyconverter.model.SharedPrefWrapper;
 import currencyconverter.alvinc.com.currencyconverter.net.VolleyWrapper;
 
 import static org.junit.Assert.assertEquals;

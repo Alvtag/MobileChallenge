@@ -3,9 +3,8 @@ package currencyconverter.alvinc.com.currencyconverter.model;
 import java.util.Map;
 
 /**
- * Created by alvin on 3/14/17.
+ * JSON object from API
  */
-
 public class ExchangeRates {
     private String base;
     private String date;

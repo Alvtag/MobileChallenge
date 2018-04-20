@@ -1,7 +1,6 @@
 package currencyconverter.alvinc.com.currencyconverter.converter;
 
 import android.support.annotation.Nullable;
-import android.support.v4.util.Pair;
 
 import com.android.volley.VolleyError;
 
@@ -14,7 +13,8 @@ import java.util.List;
 import java.util.Map;
 
 import currencyconverter.alvinc.com.currencyconverter.model.ExchangeRates;
-import currencyconverter.alvinc.com.currencyconverter.model.RateStorage;
+import currencyconverter.alvinc.com.currencyconverter.model.Rate;
+import currencyconverter.alvinc.com.currencyconverter.model.RealmStorage;
 import currencyconverter.alvinc.com.currencyconverter.net.VolleyWrapper;
 
 class ConverterPresenter {
@@ -37,13 +37,15 @@ class ConverterPresenter {
 
     ConverterPresenter(ConverterActivityView converterActivityView) {
         this.converterActivityView = converterActivityView;
-        RateStorage rateStorage = RateStorage.getInstance();
-        boolean hasPrevData = rateStorage.retrieveMapFromSharedPrefs();
-        if (hasPrevData) {
-            currenciesList = rateStorage.getCurrenciesList();
-            converterActivityView.setCurrencies(currenciesList);
-        } else {
+        RealmStorage storage = RealmStorage.getInstance();
+
+
+        List<String> currenciesList = storage.getCurrenciesList();
+
+        if (currenciesList.isEmpty()) {
             loadCurrencies(null, false);
+        } else {
+            converterActivityView.setCurrencies(currenciesList);
         }
     }
 
@@ -113,20 +115,20 @@ class ConverterPresenter {
         Map<String, Float> ratesMap = exchangeRates.getRates();
         String base = exchangeRates.getBase();
         String date = exchangeRates.getDate();
-        if (currenciesList == null) {
-            currenciesList = new ArrayList<>();
-            currenciesList.add(base);
-            for (String key : ratesMap.keySet()) {
-                currenciesList.add(key);
-            }
-            // currenciesList is now valid.
-            converterActivityView.setCurrencies(currenciesList);
-        }
+
+        currenciesList = new ArrayList<>();
+
+        currenciesList.add(base);
 
         for (String key : ratesMap.keySet()) {
-            RateStorage rateStorage = RateStorage.getInstance();
-            rateStorage.insertRateAndInverse(base, key, ratesMap.get(key), date);
-            rateStorage.insertRateAndInverse(base, base, 1.0f, date); //safety thing, not really necessary.
+            currenciesList.add(key);
+        }
+        // currenciesList is now valid.
+        converterActivityView.setCurrencies(currenciesList);
+
+        for (String key : ratesMap.keySet()) {
+            RealmStorage storage = RealmStorage.getInstance();
+            storage.insertRateAndInverse(base, key, ratesMap.get(key), date);
         }
         converterActivityView.setLoadingSpinnerGone();
     }
@@ -137,34 +139,36 @@ class ConverterPresenter {
     }
 
     void convert() {
-        String inputCurrency = currenciesList.get(inputCurrencyChoice);
-        String outputCurrency = currenciesList.get(outputCurrencyChoice);
+        final String inputCurrency = currenciesList.get(inputCurrencyChoice);
+        final String outputCurrency = currenciesList.get(outputCurrencyChoice);
         converterActivityView.setOutputValue("");
         converterActivityView.setInfoText("");
 
-        try {
-            Pair<Float, String> rateTimeStamp = RateStorage.getInstance().getRate(inputCurrency, outputCurrency);
-            float rate = rateTimeStamp.first;
-            BigDecimal rateBD = new BigDecimal(String.valueOf(rate));
-            BigDecimal centsBD = new BigDecimal(String.valueOf(translateInputToCents()));
-            BigDecimal productBD = rateBD.multiply(centsBD);
+            RealmStorage.getInstance().getRate(inputCurrency, outputCurrency, new RealmStorage.GetRateListener() {
+                @Override
+                public void onRateRetrieved(Rate rate) {
 
-            long result = productBD.longValue();
+                    BigDecimal rateBD = new BigDecimal(String.valueOf(rate.exchangeRate));
+                    BigDecimal centsBD = new BigDecimal(String.valueOf(translateInputToCents()));
+                    BigDecimal productBD = rateBD.multiply(centsBD);
 
-            converterActivityView.setOutputValue(formatNumber(result));
-            converterActivityView.setInfoText("1 " + inputCurrency + " = " + rate + " " + outputCurrency + ", as of " + rateTimeStamp.second);
-        } catch (RateStorage.RateNotFoundException e) {
-            converterActivityView.setLoadingSpinnerVisible();
-            loadCurrencies(inputCurrency, true);
-        }
+                    long result = productBD.longValue();
+
+                    converterActivityView.setOutputValue(formatNumber(result));
+                    converterActivityView.setInfoText("1 " + inputCurrency + " = " + rate.exchangeRate +
+                            " " + outputCurrency + ", as of " + rate.date);
+                }
+
+                @Override
+                public void onRateNotAvailable() {
+
+                }
+            });
+
     }
 
-    void persistData() {
-        RateStorage.getInstance().persistData();
-    }
-    
-    void clearData(){
-        RateStorage.getInstance().clearData();
+    void clearData() {
+        RealmStorage.getInstance().clearData();
     }
 
     static String formatNumber(long cents) {

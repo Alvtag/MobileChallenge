@@ -48,6 +48,8 @@ public class ConverterActivity extends AppCompatActivity implements ConverterAct
         binding.buttonDelete.setOnLongClickListener(longClickListener);
 
         converterPresenter = new ConverterPresenter(this);
+
+        //toto: start realm singleton
     }
 
     @Override
@@ -58,7 +60,7 @@ public class ConverterActivity extends AppCompatActivity implements ConverterAct
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        converterPresenter.persistData();
+        //TODO: close realm singleton
     }
 
     @Override
