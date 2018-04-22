@@ -181,7 +181,7 @@ public class ConverterPresenterTest {
                 .withArguments(converterPresenterUnderTest, true)
                 .thenReturn(ratesCallback);
 
-        converterPresenterUnderTest.loadCurrencies("EUR", true);
+        converterPresenterUnderTest.loadCurrenciesFromNetwork("EUR", true);
 
         PowerMockito.verifyStatic();
         VolleyWrapper.getRates("EUR", ratesCallback);

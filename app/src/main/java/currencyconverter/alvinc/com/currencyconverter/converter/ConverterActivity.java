@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -14,14 +15,15 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 
 import currencyconverter.alvinc.com.currencyconverter.R;
+import currencyconverter.alvinc.com.currencyconverter.application.BaseApplication;
 import currencyconverter.alvinc.com.currencyconverter.databinding.ActivityConverterBinding;
+import currencyconverter.alvinc.com.currencyconverter.model.RealmStorage;
 
 public class ConverterActivity extends AppCompatActivity implements ConverterActivityView {
 
 
     private ActivityConverterBinding binding;
     private ConverterPresenter converterPresenter;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,13 +45,12 @@ public class ConverterActivity extends AppCompatActivity implements ConverterAct
         binding.buttonDelete.setOnClickListener(clickListener);
         binding.buttonConvert.setOnClickListener(clickListener);
         binding.resetRates.setOnClickListener(clickListener);
-
         LongClickListener longClickListener = new LongClickListener(this);
         binding.buttonDelete.setOnLongClickListener(longClickListener);
 
+        RealmStorage.getInstance().init(BaseApplication.getContext());
+        //init realm storage before presenter uses it
         converterPresenter = new ConverterPresenter(this);
-
-        //toto: start realm singleton
     }
 
     @Override
@@ -60,21 +61,33 @@ public class ConverterActivity extends AppCompatActivity implements ConverterAct
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        //TODO: close realm singleton
+        RealmStorage.getInstance().close();
     }
 
     @Override
-    public void setInputValue(String inputValue) {
+    public void setInputValue(final String inputValue) {
         binding.textViewInput.setText(inputValue);
+//        Runnable myRunnable = new Runnable() {
+//            @Override
+//            public void run() {
+//
+//            }
+//        };
+//        new Handler(getMainLooper()).post(myRunnable);
+        //TODO ALVTAG: how to test? simple!
+        //1. mock new Handler (any)
+        //2. capture post (argumentCaptor<Runnable>)
+        //3. run  runnable
     }
 
     @Override
-    public void setOutputValue(String outputValue) {
+    public void setOutputValue(final String outputValue) {
+
         binding.textViewOutput.setText(outputValue);
     }
 
     @Override
-    public void setInfoText(String conversionRatio) {
+    public void setInfoText(final String conversionRatio) {
         binding.textViewConversionRatio.setText(conversionRatio);
     }
 
@@ -86,6 +99,42 @@ public class ConverterActivity extends AppCompatActivity implements ConverterAct
     @Override
     public void setLoadingSpinnerGone() {
         binding.progressbar.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void setButtonsEnabled() {
+        binding.buttonOne.setEnabled(true);
+        binding.buttonTwo.setEnabled(true);
+        binding.buttonThree.setEnabled(true);
+        binding.buttonFour.setEnabled(true);
+        binding.buttonFive.setEnabled(true);
+        binding.buttonSix.setEnabled(true);
+        binding.buttonSeven.setEnabled(true);
+        binding.buttonEight.setEnabled(true);
+        binding.buttonNine.setEnabled(true);
+        binding.buttonZero.setEnabled(true);
+        binding.buttonDelete.setEnabled(true);
+        binding.buttonConvert.setEnabled(true);
+        binding.resetRates.setEnabled(true);
+        binding.buttonDelete.setEnabled(true);
+    }
+
+    @Override
+    public void setButtonsDisabled() {
+        binding.buttonOne.setEnabled(false);
+        binding.buttonTwo.setEnabled(false);
+        binding.buttonThree.setEnabled(false);
+        binding.buttonFour.setEnabled(false);
+        binding.buttonFive.setEnabled(false);
+        binding.buttonSix.setEnabled(false);
+        binding.buttonSeven.setEnabled(false);
+        binding.buttonEight.setEnabled(false);
+        binding.buttonNine.setEnabled(false);
+        binding.buttonZero.setEnabled(false);
+        binding.buttonDelete.setEnabled(false);
+        binding.buttonConvert.setEnabled(false);
+        binding.resetRates.setEnabled(false);
+        binding.buttonDelete.setEnabled(false);
     }
 
     @Override
@@ -141,11 +190,12 @@ public class ConverterActivity extends AppCompatActivity implements ConverterAct
     /**
      * breaks MVP principles here, but the alternatives is to either
      * have one listener for each button, calling the presenter method;
-     * or have the ID passed to presenter, both aren't cleaner.
+     * or have the view ID passed to presenter, neither is cleaner.
      */
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.button_one:
+                RealmStorage.getInstance().printData();
                 converterPresenter.appendChar('1');
                 break;
             case R.id.button_two:
@@ -179,7 +229,7 @@ public class ConverterActivity extends AppCompatActivity implements ConverterAct
                 converterPresenter.deleteChar();
                 break;
             case R.id.button_convert:
-                converterPresenter.convert();
+                converterPresenter.convertAndDisplay();
                 break;
             case R.id.reset_rates:
                 converterPresenter.clearData();

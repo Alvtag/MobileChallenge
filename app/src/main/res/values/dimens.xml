@@ -4,5 +4,5 @@
     <dimen name="activity_margin">16dp</dimen>
     <dimen name="button_padding">16dp</dimen>
     <dimen name="text_padding">4dp</dimen>
-    <dimen name="calculator_button_font_sp">16sp</dimen>
+    <dimen name="calculator_button_font_sp">12sp</dimen>
 </resources>

@@ -15,9 +15,6 @@ public class BaseApplication extends Application {
     public void onCreate() {
         super.onCreate();
         appContext = getApplicationContext();
-
-        RealmConfiguration config = new RealmConfiguration.Builder().build();
-        Realm.setDefaultConfiguration(config);
     }
     public static Context getContext() {
         return appContext;

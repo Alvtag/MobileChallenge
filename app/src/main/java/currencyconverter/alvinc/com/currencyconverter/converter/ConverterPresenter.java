@@ -1,5 +1,7 @@
 package currencyconverter.alvinc.com.currencyconverter.converter;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 
 import com.android.volley.VolleyError;
@@ -9,9 +11,11 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import currencyconverter.alvinc.com.currencyconverter.application.BaseApplication;
 import currencyconverter.alvinc.com.currencyconverter.model.ExchangeRates;
 import currencyconverter.alvinc.com.currencyconverter.model.Rate;
 import currencyconverter.alvinc.com.currencyconverter.model.RealmStorage;
@@ -31,7 +35,7 @@ class ConverterPresenter {
         DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance();
         symbols.setGroupingSeparator(',');
         formatter = new DecimalFormat("###,###,##0.00", symbols);
-        // for an Indian counting version:
+        // Aside: for an Indian counting version:     crore,lakh,thousand
         // DecimalFormat formatter2 = new DecimalFormat("##,##,##,###.##", symbols2);
     }
 
@@ -39,11 +43,10 @@ class ConverterPresenter {
         this.converterActivityView = converterActivityView;
         RealmStorage storage = RealmStorage.getInstance();
 
-
-        List<String> currenciesList = storage.getCurrenciesList();
+        currenciesList = new ArrayList<>(storage.getCurrenciesSet());
 
         if (currenciesList.isEmpty()) {
-            loadCurrencies(null, false);
+            loadCurrenciesFromNetwork(null, false);
         } else {
             converterActivityView.setCurrencies(currenciesList);
         }
@@ -107,8 +110,10 @@ class ConverterPresenter {
         return Long.valueOf(inputValue);
     }
 
-    void loadCurrencies(@Nullable String currency, boolean pendingConversion) {
-        VolleyWrapper.getRates(currency, new RatesCallback(this, pendingConversion));
+    void loadCurrenciesFromNetwork(@Nullable String currency, boolean pendingConversion) {
+        converterActivityView.setLoadingSpinnerVisible();
+        VolleyWrapper.getRates(currency,
+                new RatesCallback(this, pendingConversion, new Handler(Looper.getMainLooper())));
     }
 
     void onNewRatesData(ExchangeRates exchangeRates) {
@@ -116,19 +121,18 @@ class ConverterPresenter {
         String base = exchangeRates.getBase();
         String date = exchangeRates.getDate();
 
-        currenciesList = new ArrayList<>();
-
-        currenciesList.add(base);
-
-        for (String key : ratesMap.keySet()) {
-            currenciesList.add(key);
+        if (currenciesList == null || currenciesList.isEmpty()) {
+            currenciesList = new ArrayList<>();
+            currenciesList.add(base);
+            currenciesList.addAll(ratesMap.keySet());
+            Collections.sort(currenciesList);
+            converterActivityView.setCurrencies(currenciesList);
         }
-        // currenciesList is now valid.
-        converterActivityView.setCurrencies(currenciesList);
-
+        RealmStorage storage = RealmStorage.getInstance();
+        storage.insertRate(base, base, 1f, date);
         for (String key : ratesMap.keySet()) {
-            RealmStorage storage = RealmStorage.getInstance();
-            storage.insertRateAndInverse(base, key, ratesMap.get(key), date);
+            storage.insertRate(base, key, ratesMap.get(key), date);
+            storage.insertRate(key, base, (1f / ratesMap.get(key)), date);
         }
         converterActivityView.setLoadingSpinnerGone();
     }
@@ -138,41 +142,58 @@ class ConverterPresenter {
         converterActivityView.showError(error.toString());
     }
 
-    void convert() {
+    void convertAndDisplay() {
         final String inputCurrency = currenciesList.get(inputCurrencyChoice);
         final String outputCurrency = currenciesList.get(outputCurrencyChoice);
         converterActivityView.setOutputValue("");
         converterActivityView.setInfoText("");
+        final Handler uiHandler = new Handler(Looper.getMainLooper());
 
-            RealmStorage.getInstance().getRate(inputCurrency, outputCurrency, new RealmStorage.GetRateListener() {
-                @Override
-                public void onRateRetrieved(Rate rate) {
+        RealmStorage.getInstance().getRate(inputCurrency, outputCurrency, new RealmStorage.GetRateListener() {
+            @Override
+            public void onRateRetrieved(final Rate rate) {
 
-                    BigDecimal rateBD = new BigDecimal(String.valueOf(rate.exchangeRate));
-                    BigDecimal centsBD = new BigDecimal(String.valueOf(translateInputToCents()));
-                    BigDecimal productBD = rateBD.multiply(centsBD);
 
-                    long result = productBD.longValue();
+                BigDecimal rateBD = new BigDecimal(String.valueOf(rate.exchangeRate));
+                BigDecimal centsBD = new BigDecimal(String.valueOf(translateInputToCents()));
+                BigDecimal productBD = rateBD.multiply(centsBD);
 
-                    converterActivityView.setOutputValue(formatNumber(result));
-                    converterActivityView.setInfoText("1 " + inputCurrency + " = " + rate.exchangeRate +
-                            " " + outputCurrency + ", as of " + rate.date);
-                }
+                //realm objects can only be touched on its background thread, but ui objects from user thread
+                final float exchangeRate = rate.exchangeRate;
+                final long result = productBD.longValue();
+                final String date = rate.date;
+                Runnable runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        converterActivityView.setOutputValue(formatNumber(result));
+                        converterActivityView.setInfoText("1 " + inputCurrency + " = " + exchangeRate+
+                                " " + outputCurrency + ", as of " + date);
+                    }
+                };
+                uiHandler.post(runnable);
+            }
 
-                @Override
-                public void onRateNotAvailable() {
-
-                }
-            });
+            @Override
+            public void onRateNotAvailable() {
+                Runnable runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        ConverterPresenter.this.loadCurrenciesFromNetwork(inputCurrency, true);
+                    }
+                };
+                uiHandler.post(runnable);
+            }
+        });
 
     }
 
     void clearData() {
-        RealmStorage.getInstance().clearData();
+        RealmStorage.getInstance().clearData(BaseApplication.getContext());
     }
 
     static String formatNumber(long cents) {
-        BigDecimal bigDecimalTest = (new BigDecimal(String.valueOf(cents))).divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
-        return formatter.format(bigDecimalTest);
+        BigDecimal bigDecimal = (new BigDecimal(String.valueOf(cents)))
+                .divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
+        return formatter.format(bigDecimal);
     }
 }

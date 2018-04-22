@@ -1,6 +1,7 @@
 package currencyconverter.alvinc.com.currencyconverter.net;
 
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -14,7 +15,8 @@ import currencyconverter.alvinc.com.currencyconverter.application.BaseApplicatio
 import currencyconverter.alvinc.com.currencyconverter.model.ExchangeRates;
 
 public class VolleyWrapper {
-    private final static String URL = "http://api.fixer.io/latest?base=%%BASE%%";
+    private final static String URL = "https://exchangeratesapi.io/api/latest?base=%%BASE%%";
+
     private final static String BASE = "%%BASE%%";
     private static final String INITIAL_CURRENCY = "CAD";
 
@@ -33,6 +35,7 @@ public class VolleyWrapper {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String json) {
+                        Log.d("ALVTAG," ,"json:"+json);
                         ExchangeRates exchangeRates = gson.fromJson(json, ExchangeRates.class);
                         exchangeRatesCallback.onFetchComplete(exchangeRates);
                     }
