@@ -4,7 +4,6 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -67,17 +66,6 @@ public class ConverterActivity extends AppCompatActivity implements ConverterAct
     @Override
     public void setInputValue(final String inputValue) {
         binding.textViewInput.setText(inputValue);
-//        Runnable myRunnable = new Runnable() {
-//            @Override
-//            public void run() {
-//
-//            }
-//        };
-//        new Handler(getMainLooper()).post(myRunnable);
-        //TODO ALVTAG: how to test? simple!
-        //1. mock new Handler (any)
-        //2. capture post (argumentCaptor<Runnable>)
-        //3. run  runnable
     }
 
     @Override

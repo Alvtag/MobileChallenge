@@ -5,7 +5,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import io.realm.Realm;
@@ -14,11 +16,12 @@ import io.realm.RealmList;
 import io.realm.RealmResults;
 
 public class RealmStorage {
-    private static RealmStorage instance = new RealmStorage();
+    private static RealmStorage instance;
     private static final String INIT_NOT_CALLED = "Run init() before this method!";
 
     @Nullable
     private Realm realm;
+
     private RealmConfiguration config;
 
     public static RealmStorage getInstance() {
@@ -47,35 +50,36 @@ public class RealmStorage {
     public void printData() {
         if (realm == null) throw new RuntimeException(INIT_NOT_CALLED);
 
-        Log.d("Realm", "==========BEGIN DUMP===========");
+        Log.v("Realm", "==========BEGIN DUMP===========");
         RealmResults<Currency> currencies = realm.where(Currency.class).findAll();
         for (Currency currency : currencies) {
 
-            Log.d("Realm", "-----------currency:" + currency.currencySymbol);
+            Log.v("Realm", "-----------currency:" + currency.currencySymbol);
             for (Rate rate : currency.rates) {
                 Log.d("ALVTAG", "to:" + rate.currencySymbol + " @ " + rate.exchangeRate);
             }
         }
-        Log.d("Realm", "==========END DUMP===========");
+        Log.v("Realm", "==========END DUMP===========");
     }
 
     public void insertRate(final String baseCurrencySymbol,
                            final String targetCurrencySymbol,
                            final float exchangeRate, final String date) {
-
         if (realm == null) throw new RuntimeException(INIT_NOT_CALLED);
+
+        //create object out here- powerMockito cannot touch anon inner
+        final RealmList<Rate> newRealmList = new RealmList<>();
+
         realm.executeTransactionAsync(new Realm.Transaction() {
             @Override
             public void execute(@NonNull Realm realm) {
-                Log.d("Realm", "writing realm:" + baseCurrencySymbol + " to " +
-                        targetCurrencySymbol + " @ " + exchangeRate);
 
                 Currency currency = realm.where(Currency.class)
                         .equalTo("currencySymbol", baseCurrencySymbol).findFirst();
                 if (currency == null) {
                     currency = realm.createObject(Currency.class);
                     currency.currencySymbol = baseCurrencySymbol;
-                    currency.rates = new RealmList<>();
+                    currency.rates = newRealmList;
                 }
 
                 //currency is now ready to go
@@ -98,15 +102,16 @@ public class RealmStorage {
     //SYNCHRONOUS CALL - but we won't have very many currencies, this should be safe
     public Set<String> getCurrenciesSet() {
         if (realm == null) throw new RuntimeException(INIT_NOT_CALLED);
-        RealmResults<Currency> realmResults = realm.where(Currency.class).findAll();
+        RealmResults<Currency> currencyResults = realm.where(Currency.class).findAll();
 
-        Set<String> result = new HashSet<>(realmResults.size());
+        Set<String> result = new HashSet<>(currencyResults.size());
 
         // I can't guarantee that one currency would have every other conversion attached
         // If that was the case, just taking the first currency and its attached conversions 
         // would suffice
-        for (Currency currency : realmResults) {
+        for (Currency currency : currencyResults) {
             result.add(currency.currencySymbol);
+
             for (Rate rate : currency.rates) {
                 result.add(rate.currencySymbol);
             }

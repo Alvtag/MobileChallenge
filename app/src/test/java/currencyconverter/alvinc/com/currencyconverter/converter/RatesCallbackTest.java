@@ -21,22 +21,22 @@ public class RatesCallbackTest {
 
     @Test
     public void onFetchCompleteWithPending() {
-        ratesCallbackUnderTest = new RatesCallback(converterPresenter, true);
+        ratesCallbackUnderTest = new RatesCallback(converterPresenter, true, null);
 
         ratesCallbackUnderTest.onFetchComplete(exchangeRates);
 
         Mockito.verify(converterPresenter).onNewRatesData(exchangeRates);
-        Mockito.verify(converterPresenter).convert();
+        Mockito.verify(converterPresenter).convertAndDisplay();
     }
 
 
     @Test
     public void onFetchCompleteNoPending() {
-        ratesCallbackUnderTest = new RatesCallback(converterPresenter, false);
+        ratesCallbackUnderTest = new RatesCallback(converterPresenter, false, null);
 
         ratesCallbackUnderTest.onFetchComplete(exchangeRates);
 
         Mockito.verify(converterPresenter).onNewRatesData(exchangeRates);
-        Mockito.verify(converterPresenter, Mockito.times(0)).convert();
+        Mockito.verify(converterPresenter, Mockito.times(0)).convertAndDisplay();
     }
 }
