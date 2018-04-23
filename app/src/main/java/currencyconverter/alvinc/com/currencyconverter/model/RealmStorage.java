@@ -111,7 +111,6 @@ public class RealmStorage {
         // would suffice
         for (Currency currency : currencyResults) {
             result.add(currency.currencySymbol);
-
             for (Rate rate : currency.rates) {
                 result.add(rate.currencySymbol);
             }

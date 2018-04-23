@@ -20,6 +20,7 @@ import io.realm.RealmQuery;
 import io.realm.RealmResults;
 
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 
 import static org.junit.Assert.assertEquals;
@@ -122,48 +123,52 @@ public class RealmStorageTest {
         //verifies for rate
         ArgumentCaptor<Rate> rateArgumentCaptor = ArgumentCaptor.forClass(Rate.class);
         verify(realmList).add(rateArgumentCaptor.capture());
-        Rate result = rateArgumentCaptor.getValue();
+        Rate insertedRate = rateArgumentCaptor.getValue();
 
-        assertEquals("CAD", result.currencySymbol);
-        assertEquals(currencyUSD, result.parent);
-        assertEquals("My Date!", result.date);
-        assertEquals(1.121F, result.exchangeRate, 0.01F);
+        assertEquals("CAD", insertedRate.currencySymbol);
+        assertEquals(currencyUSD, insertedRate.parent);
+        assertEquals("My Date!", insertedRate.date);
+        assertEquals(1.121F, insertedRate.exchangeRate, 0.01F);
     }
 
     @Test
     public void getCurrenciesSet() throws Exception{
         mockStatic(RealmStorage.class);
-        RealmResults<Currency> realmResults = mock(RealmResults.class);
+        mockStatic(RealmResults.class);
+        RealmResults<Currency> realmResults = PowerMockito.mock(RealmResults.class);
         RealmQuery<Currency> currenciesQuery = mock(RealmQuery.class);
         when(realm.where(Currency.class)).thenReturn(currenciesQuery);
         when(currenciesQuery.findAll()).thenReturn(realmResults);
 
+        //mocked currency results
         Currency aud = mock(Currency.class);
         aud.currencySymbol = "AUD";
-        aud.rates = new RealmList<>();
-
+        aud.rates = PowerMockito.mock(RealmList.class);
         ArrayList<Rate> audList = new ArrayList<>();
         Rate audSGD = new Rate();
         audSGD.currencySymbol = "SGD";
         audList.add(audSGD);
         Rate audCAD = new Rate();
         audCAD.currencySymbol = "CAD";
-        audList.add(audSGD);
-
+        audList.add(audCAD);
         Currency zar = mock(Currency.class);
         zar.currencySymbol = "ZAR";
-        zar.rates = new RealmList<>();
+        zar.rates = PowerMockito.mock(RealmList.class);
         ArrayList<Rate> zarList = new ArrayList<>();
         Rate zarHKD = new Rate();
-        zarHKD.currencySymbol = "HKD";
+        zarHKD.currencySymbol = "CAD";
         zarList.add(zarHKD);
-
         ArrayList<Currency> currencyList = new ArrayList<>();
-        currencyList.add(aud); currencyList.add(zar);
+        currencyList.add(aud);
+        currencyList.add(zar);
 
-        whenNew(ArrayList.class).withArguments(realmResults).thenReturn(currencyList);
-        whenNew(ArrayList.class).withArguments(aud.rates).thenReturn(audList);
-        whenNew(ArrayList.class).withArguments(zar.rates).thenReturn(zarList);
+        // This here is a pretty glorious piece of mocking work
+        // since RealmResults has a custom iterator (due to managed object)
+        // we must also mock it's iterator. so, we create our own arrayLists
+        // and pass the arraylist's iterators in place of the default!
+        PowerMockito.when(realmResults.iterator()).thenReturn(currencyList.iterator());
+        PowerMockito.when(aud.rates.iterator()).thenReturn(zarList.iterator());
+        PowerMockito.when(zar.rates.iterator()).thenReturn(audList.iterator());
 
         this.init();
         Set<String> results = realmStorageUnderTest.getCurrenciesSet();
@@ -189,7 +194,86 @@ public class RealmStorageTest {
     }
 
     @Test
-    public void getRate() {
+    public void getRate_found() {
+        RealmStorage.GetRateListener getRateListener =
+                mock(RealmStorage.GetRateListener.class);
+
+        //mocking for currency query
+        RealmQuery<Currency> usdQuery = mock(RealmQuery.class);
+        when(realm.where(Currency.class)).thenReturn(usdQuery);
+        when(usdQuery.equalTo("currencySymbol", "USD")).thenReturn(usdQuery);
+        Currency currencyUSD = mock(Currency.class);
+        when(usdQuery.findFirst()).thenReturn(currencyUSD);
+        currencyUSD.rates = mock(RealmList.class);
+
+        //mocking for rate
+        RealmQuery<Rate> cadRateQuery = mock(RealmQuery.class);
+        when(currencyUSD.rates.where()).thenReturn(cadRateQuery);
+        when(cadRateQuery.equalTo("currencySymbol", "CAD")).thenReturn(cadRateQuery);
+        Rate cadRate = mock(Rate.class);
+        when(cadRateQuery.findFirst()).thenReturn(cadRate);
+
+        this.init();
+        realmStorageUnderTest.getRate("USD", "CAD", getRateListener);
+
+        ArgumentCaptor<Realm.Transaction> captor = ArgumentCaptor.forClass(Realm.Transaction.class);
+        verify(realm).executeTransactionAsync(captor.capture());
+        Realm.Transaction transaction = captor.getValue();
+        transaction.execute(realm);
+        verify(getRateListener, times(1)).onRateRetrieved(cadRate);
+        verify(getRateListener, times(0)).onRateNotAvailable();
+    }
+
+    @Test
+    public void getRate_currencyFound_rateNotFound() {
+        RealmStorage.GetRateListener getRateListener =
+                mock(RealmStorage.GetRateListener.class);
+
+        //mocking for currency query
+        RealmQuery<Currency> usdQuery = mock(RealmQuery.class);
+        when(realm.where(Currency.class)).thenReturn(usdQuery);
+        when(usdQuery.equalTo("currencySymbol", "USD")).thenReturn(usdQuery);
+        Currency currencyUSD = mock(Currency.class);
+        when(usdQuery.findFirst()).thenReturn(currencyUSD);
+        currencyUSD.rates = mock(RealmList.class);
+
+        //mocking for rate
+        RealmQuery<Rate> cadRateQuery = mock(RealmQuery.class);
+        when(currencyUSD.rates.where()).thenReturn(cadRateQuery);
+        when(cadRateQuery.equalTo("currencySymbol", "CAD")).thenReturn(cadRateQuery);
+        when(cadRateQuery.findFirst()).thenReturn(null);
+
+        this.init();
+        realmStorageUnderTest.getRate("USD", "CAD", getRateListener);
+
+        ArgumentCaptor<Realm.Transaction> captor = ArgumentCaptor.forClass(Realm.Transaction.class);
+        verify(realm).executeTransactionAsync(captor.capture());
+        Realm.Transaction transaction = captor.getValue();
+        transaction.execute(realm);
+        verify(getRateListener, times(0)).onRateRetrieved(any(Rate.class));
+        verify(getRateListener, times(1)).onRateNotAvailable();
+    }
+
+    @Test
+    public void getRate_currencyNotFound() {
+        RealmStorage.GetRateListener getRateListener =
+                mock(RealmStorage.GetRateListener.class);
+
+        //mocking for currency query
+        RealmQuery<Currency> usdQuery = mock(RealmQuery.class);
+        when(realm.where(Currency.class)).thenReturn(usdQuery);
+        when(usdQuery.equalTo("currencySymbol", "USD")).thenReturn(usdQuery);
+        when(usdQuery.findFirst()).thenReturn(null);
+
+        this.init();
+        realmStorageUnderTest.getRate("USD", "CAD", getRateListener);
+
+        ArgumentCaptor<Realm.Transaction> captor = ArgumentCaptor.forClass(Realm.Transaction.class);
+        verify(realm).executeTransactionAsync(captor.capture());
+        Realm.Transaction transaction = captor.getValue();
+        transaction.execute(realm);
+
+        verify(getRateListener, times(0)).onRateRetrieved(any(Rate.class));
+        verify(getRateListener, times(1)).onRateNotAvailable();
     }
 }
-
