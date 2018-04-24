@@ -5,7 +5,7 @@ import android.os.Looper;
 import android.support.annotation.Nullable;
 
 import com.android.volley.VolleyError;
-import com.google.gson.Gson;
+
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -111,7 +111,7 @@ class ConverterPresenter {
 
     void loadCurrenciesFromNetwork(@Nullable String currency, boolean pendingConversion) {
         converterActivityView.setLoadingSpinnerVisible();
-        new VolleyWrapper(new Gson()).getRates(currency,
+        new VolleyWrapper().getRates(currency,
                 new RatesCallback(this, pendingConversion, new Handler(Looper.getMainLooper())));
     }
 

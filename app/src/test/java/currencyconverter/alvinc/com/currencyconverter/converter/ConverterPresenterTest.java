@@ -196,7 +196,7 @@ public class ConverterPresenterTest {
                 .thenReturn(ratesCallback);
         PowerMockito.whenNew(Gson.class).withNoArguments().thenReturn(gson);
         PowerMockito.whenNew(VolleyWrapper.class)
-                .withArguments(gson)
+                .withNoArguments()
                 .thenReturn(wrapper);
 
         converterPresenterUnderTest.loadCurrenciesFromNetwork("EUR", true);
