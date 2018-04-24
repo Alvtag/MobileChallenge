@@ -1,7 +1,9 @@
 package currencyconverter.alvinc.com.currencyconverter.converter;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.health.UidHealthStats;
 
 import com.android.volley.VolleyError;
 import com.google.gson.Gson;
@@ -9,6 +11,7 @@ import com.google.gson.Gson;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -16,12 +19,15 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import currencyconverter.alvinc.com.currencyconverter.application.BaseApplication;
 import currencyconverter.alvinc.com.currencyconverter.model.ExchangeRates;
+import currencyconverter.alvinc.com.currencyconverter.model.Rate;
 import currencyconverter.alvinc.com.currencyconverter.model.RealmStorage;
 import currencyconverter.alvinc.com.currencyconverter.net.VolleyWrapper;
 
@@ -38,20 +44,25 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({VolleyWrapper.class, Gson.class, ConverterPresenter.class, RealmStorage.class, Looper.class})
+@PrepareForTest({VolleyWrapper.class, Gson.class, ConverterPresenter.class,
+        RealmStorage.class, Looper.class, BaseApplication.class})
 public class ConverterPresenterTest {
     @Mock
     private ConverterActivityView converterActivityView;
     @Mock
     private RealmStorage realmStorage;
+    @Mock
+    private Context context;
     private ConverterPresenter converterPresenterUnderTest;
 
     @Before
     public void setup() {
+        PowerMockito.mockStatic(BaseApplication.class);
         PowerMockito.mockStatic(Looper.class);
         PowerMockito.mockStatic(VolleyWrapper.class);
         PowerMockito.mockStatic(RealmStorage.class);
         PowerMockito.when(RealmStorage.getInstance()).thenReturn(realmStorage);
+        PowerMockito.when(BaseApplication.getContext()).thenReturn(context);
         HashSet<String> currencySet = new HashSet<>();
         currencySet.add("HKD");
         currencySet.add("CAD");
@@ -257,5 +268,86 @@ public class ConverterPresenterTest {
     @Test
     public void formatBigNumber() {
         assertEquals("841,212,121,567.12", ConverterPresenter.formatNumber(84121212156712L));
+    }
+
+
+    @Test
+    public void clearData() {
+        converterPresenterUnderTest.clearData();
+
+        verify(realmStorage).clearData(context);
+    }
+
+    @Test
+    public void convertAndDisplay() throws Exception {
+        converterPresenterUnderTest.currenciesList.clear();
+        converterPresenterUnderTest.currenciesList.add("HKD");
+        converterPresenterUnderTest.currenciesList.add("CAD");
+        converterPresenterUnderTest.inputCurrencyChoice = 0;
+        converterPresenterUnderTest.outputCurrencyChoice = 1;
+        PowerMockito.mockStatic(ConverterPresenter.class);
+        PowerMockito.mockStatic(Looper.class);
+        Looper looper = mock(Looper.class);
+        Handler uiHandler = mock(Handler.class);
+        when(Looper.getMainLooper()).thenReturn(looper);
+        ConverterPresenter.RealmStorageRateListener rateListener =
+                mock(ConverterPresenter.RealmStorageRateListener.class);
+        PowerMockito.whenNew(Handler.class)
+                .withArguments(looper)
+                .thenReturn(uiHandler);
+        PowerMockito.whenNew(ConverterPresenter.RealmStorageRateListener.class)
+                .withArguments(converterPresenterUnderTest,
+                        uiHandler, converterActivityView, "HKD", "CAD")
+                .thenReturn(rateListener);
+
+        converterPresenterUnderTest.convertAndDisplay();
+
+        verify(converterActivityView).setLoadingSpinnerVisible();
+        verify(converterActivityView).setOutputValue("");
+        verify(converterActivityView).setInfoText("");
+        verify(realmStorage).getRate("HKD", "CAD", rateListener);
+    }
+
+    @Test
+    public void RealmStorageRateListener() {
+        Handler uiHandler = mock(Handler.class);
+        ConverterPresenter presenter = mock(ConverterPresenter.class);
+        ConverterPresenter.RealmStorageRateListener rateListenerUnderTest =
+                new ConverterPresenter.RealmStorageRateListener(presenter,
+                        uiHandler, converterActivityView, "CAD", "AUD");
+        Rate rate = mock(Rate.class);
+        rate.exchangeRate = 1.034F;
+        rate.date = "April 3 2017";
+        when(presenter.translateInputToCents()).thenReturn(12113112L);
+
+        rateListenerUnderTest.onRateRetrieved(rate);
+
+        ArgumentCaptor<Runnable> captor = ArgumentCaptor.forClass(Runnable.class);
+        verify(uiHandler).post(captor.capture());
+        Runnable runnable = captor.getValue();
+        runnable.run();
+
+        verify(converterActivityView).setLoadingSpinnerGone();
+        verify(converterActivityView).setOutputValue("125,249.57");
+        verify(converterActivityView).setInfoText("1 CAD = 1.034 AUD, as of April 3 2017");
+    }
+
+    @Test
+    public void onRateNotAvailable() {
+
+        Handler uiHandler = mock(Handler.class);
+        ConverterPresenter presenter = mock(ConverterPresenter.class);
+        ConverterPresenter.RealmStorageRateListener rateListenerUnderTest =
+                new ConverterPresenter.RealmStorageRateListener(presenter,
+                        uiHandler, converterActivityView, "CAD", "AUD");
+
+        rateListenerUnderTest.onRateNotAvailable();
+
+        ArgumentCaptor<Runnable> captor = ArgumentCaptor.forClass(Runnable.class);
+        verify(uiHandler).post(captor.capture());
+        Runnable runnable = captor.getValue();
+        runnable.run();
+
+        verify(presenter).loadCurrenciesFromNetwork("CAD", true);
     }
 }

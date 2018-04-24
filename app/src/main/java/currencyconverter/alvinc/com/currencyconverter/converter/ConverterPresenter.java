@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import com.android.volley.VolleyError;
 
 
+import java.lang.ref.WeakReference;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -144,45 +145,15 @@ class ConverterPresenter {
     void convertAndDisplay() {
         final String inputCurrency = currenciesList.get(inputCurrencyChoice);
         final String outputCurrency = currenciesList.get(outputCurrencyChoice);
+
+        converterActivityView.setLoadingSpinnerVisible();
         converterActivityView.setOutputValue("");
         converterActivityView.setInfoText("");
         final Handler uiHandler = new Handler(Looper.getMainLooper());
 
-        RealmStorage.getInstance().getRate(inputCurrency, outputCurrency, new RealmStorage.GetRateListener() {
-            @Override
-            public void onRateRetrieved(final Rate rate) {
-
-
-                BigDecimal rateBD = new BigDecimal(String.valueOf(rate.exchangeRate));
-                BigDecimal centsBD = new BigDecimal(String.valueOf(translateInputToCents()));
-                BigDecimal productBD = rateBD.multiply(centsBD);
-
-                //realm objects can only be touched on its background thread, but ui objects from user thread
-                final float exchangeRate = rate.exchangeRate;
-                final long result = productBD.longValue();
-                final String date = rate.date;
-                Runnable runnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        converterActivityView.setOutputValue(formatNumber(result));
-                        converterActivityView.setInfoText("1 " + inputCurrency + " = " + exchangeRate+
-                                " " + outputCurrency + ", as of " + date);
-                    }
-                };
-                uiHandler.post(runnable);
-            }
-
-            @Override
-            public void onRateNotAvailable() {
-                Runnable runnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        ConverterPresenter.this.loadCurrenciesFromNetwork(inputCurrency, true);
-                    }
-                };
-                uiHandler.post(runnable);
-            }
-        });
+        RealmStorage.getInstance().getRate(inputCurrency, outputCurrency,
+                new RealmStorageRateListener(this, uiHandler, converterActivityView,
+                        inputCurrency, outputCurrency));
 
     }
 
@@ -194,5 +165,59 @@ class ConverterPresenter {
         BigDecimal bigDecimal = (new BigDecimal(String.valueOf(cents)))
                 .divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
         return formatter.format(bigDecimal);
+    }
+
+    static class RealmStorageRateListener implements RealmStorage.GetRateListener {
+        ConverterPresenter presenter;
+        Handler uiHandler;
+        WeakReference<ConverterActivityView> viewRef;
+        String inputCurrency;
+        String outputCurrency;
+
+        RealmStorageRateListener(ConverterPresenter presenter, Handler uiHandler,
+                                        ConverterActivityView view, String inputCurrency,
+                                        String outputCurrency) {
+            this.presenter = presenter;
+            this.uiHandler = uiHandler;
+            this.viewRef = new WeakReference<>(view);
+            this.inputCurrency = inputCurrency;
+            this.outputCurrency = outputCurrency;
+        }
+
+        @Override
+        public void onRateRetrieved(final Rate rate) {
+            final ConverterActivityView converterActivityView = viewRef.get();
+            if (converterActivityView == null) return;
+
+            BigDecimal rateBD = new BigDecimal(String.valueOf(rate.exchangeRate));
+            BigDecimal centsBD = new BigDecimal(String.valueOf(presenter.translateInputToCents()));
+            BigDecimal productBD = rateBD.multiply(centsBD);
+
+            //realm objects can only be touched on its background thread, but ui objects from user thread
+            final float exchangeRate = rate.exchangeRate;
+            final long result = productBD.longValue();
+            final String date = rate.date;
+            Runnable runnable = new Runnable() {
+                @Override
+                public void run() {
+                    converterActivityView.setLoadingSpinnerGone();
+                    converterActivityView.setOutputValue(formatNumber(result));
+                    converterActivityView.setInfoText("1 " + inputCurrency + " = " + exchangeRate +
+                            " " + outputCurrency + ", as of " + date);
+                }
+            };
+            uiHandler.post(runnable);
+        }
+
+        @Override
+        public void onRateNotAvailable() {
+            Runnable runnable = new Runnable() {
+                @Override
+                public void run() {
+                    presenter.loadCurrenciesFromNetwork(inputCurrency, true);
+                }
+            };
+            uiHandler.post(runnable);
+        }
     }
 }
