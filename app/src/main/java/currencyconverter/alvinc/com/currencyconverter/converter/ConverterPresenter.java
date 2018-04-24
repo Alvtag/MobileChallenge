@@ -5,6 +5,7 @@ import android.os.Looper;
 import android.support.annotation.Nullable;
 
 import com.android.volley.VolleyError;
+import com.google.gson.Gson;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -42,9 +43,7 @@ class ConverterPresenter {
     ConverterPresenter(ConverterActivityView converterActivityView) {
         this.converterActivityView = converterActivityView;
         RealmStorage storage = RealmStorage.getInstance();
-
         currenciesList = new ArrayList<>(storage.getCurrenciesSet());
-
         if (currenciesList.isEmpty()) {
             loadCurrenciesFromNetwork(null, false);
         } else {
@@ -112,7 +111,7 @@ class ConverterPresenter {
 
     void loadCurrenciesFromNetwork(@Nullable String currency, boolean pendingConversion) {
         converterActivityView.setLoadingSpinnerVisible();
-        VolleyWrapper.getRates(currency,
+        new VolleyWrapper(new Gson()).getRates(currency,
                 new RatesCallback(this, pendingConversion, new Handler(Looper.getMainLooper())));
     }
 

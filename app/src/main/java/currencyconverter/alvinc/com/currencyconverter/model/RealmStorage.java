@@ -64,7 +64,7 @@ public class RealmStorage {
 
     public void insertRate(final String baseCurrencySymbol,
                            final String targetCurrencySymbol,
-                           final float exchangeRate, final String date) {
+                           final Float exchangeRate, final String date) {
         if (realm == null) throw new RuntimeException(INIT_NOT_CALLED);
 
         //create object out here- powerMockito cannot touch anon inner
@@ -111,6 +111,7 @@ public class RealmStorage {
         // would suffice
         for (Currency currency : currencyResults) {
             result.add(currency.currencySymbol);
+
             for (Rate rate : currency.rates) {
                 result.add(rate.currencySymbol);
             }

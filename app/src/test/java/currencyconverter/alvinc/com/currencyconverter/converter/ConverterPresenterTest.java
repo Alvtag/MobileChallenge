@@ -1,9 +1,10 @@
 package currencyconverter.alvinc.com.currencyconverter.converter;
 
-
-import android.support.v4.util.Pair;
+import android.os.Handler;
+import android.os.Looper;
 
 import com.android.volley.VolleyError;
+import com.google.gson.Gson;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -15,34 +16,46 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
 import currencyconverter.alvinc.com.currencyconverter.model.ExchangeRates;
+import currencyconverter.alvinc.com.currencyconverter.model.RealmStorage;
 import currencyconverter.alvinc.com.currencyconverter.net.VolleyWrapper;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyFloat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({VolleyWrapper.class, ConverterPresenter.class})
+@PrepareForTest({VolleyWrapper.class, Gson.class, ConverterPresenter.class, RealmStorage.class, Looper.class})
 public class ConverterPresenterTest {
     @Mock
     private ConverterActivityView converterActivityView;
-
+    @Mock
+    private RealmStorage realmStorage;
     private ConverterPresenter converterPresenterUnderTest;
 
     @Before
     public void setup() {
+        PowerMockito.mockStatic(Looper.class);
         PowerMockito.mockStatic(VolleyWrapper.class);
+        PowerMockito.mockStatic(RealmStorage.class);
+        PowerMockito.when(RealmStorage.getInstance()).thenReturn(realmStorage);
+        HashSet<String> currencySet = new HashSet<>();
+        currencySet.add("HKD");
+        currencySet.add("CAD");
+        when(realmStorage.getCurrenciesSet()).thenReturn(currencySet);
         converterPresenterUnderTest = new ConverterPresenter(converterActivityView);
     }
 
@@ -172,22 +185,29 @@ public class ConverterPresenterTest {
 
     @Test
     public void loadCurrencies() throws Exception {
+        Gson gson = PowerMockito.mock(Gson.class);
         RatesCallback ratesCallback = mock(RatesCallback.class);
         // very strange mockito "feature" that you're to mockStatic the class that calls the constructor,
         // rather then mockStatic(RatesCallback.class)!
         PowerMockito.mockStatic(ConverterPresenter.class);
+        VolleyWrapper wrapper = mock(VolleyWrapper.class);
         PowerMockito.whenNew(RatesCallback.class)
-                .withArguments(converterPresenterUnderTest, true)
+                .withArguments(eq(converterPresenterUnderTest), eq(true), any(Handler.class))
                 .thenReturn(ratesCallback);
+        PowerMockito.whenNew(Gson.class).withNoArguments().thenReturn(gson);
+        PowerMockito.whenNew(VolleyWrapper.class)
+                .withArguments(gson)
+                .thenReturn(wrapper);
 
         converterPresenterUnderTest.loadCurrenciesFromNetwork("EUR", true);
 
-        PowerMockito.verifyStatic();
-        VolleyWrapper.getRates("EUR", ratesCallback);
+        verify(wrapper).getRates("EUR", ratesCallback);
     }
 
     @Test
-    public void onNewRatesData() throws Exception {
+    public void onNewRatesData() {
+        converterPresenterUnderTest.currenciesList = null;
+
         ExchangeRates exchangeRates = mock(ExchangeRates.class);
         Map<String, Float> ratesMap = new HashMap<>();
         ratesMap.put("AUD", 1.32F);
@@ -196,23 +216,20 @@ public class ConverterPresenterTest {
         when(exchangeRates.getBase()).thenReturn("EUR");
         when(exchangeRates.getDate()).thenReturn("10-12-18");
         PowerMockito.mockStatic(ConverterPresenter.class);
-//        PowerMockito.mockStatic(RateStorage.class);
-//        RateStorage mockRateStorage = mock(RateStorage.class);
-//        PowerMockito.when(RateStorage.getInstance()).thenReturn(mockRateStorage);
 
-        converterPresenterUnderTest = new ConverterPresenter(converterActivityView);
         verify(converterActivityView, times(1)).setCurrencies(Matchers.anyListOf(String.class));
-
         converterPresenterUnderTest.onNewRatesData(exchangeRates);
         verify(converterActivityView, times(2)).setCurrencies(Matchers.anyListOf(String.class));
 
         assertEquals(3, converterPresenterUnderTest.currenciesList.size());
-        assertEquals("EUR", converterPresenterUnderTest.currenciesList.get(0));
-        assertEquals("AUD", converterPresenterUnderTest.currenciesList.get(1));
-        assertEquals("CAD", converterPresenterUnderTest.currenciesList.get(2));
-//        verify(mockRateStorage).insertRateAndInverse("EUR", "AUD", 1.32F, "10-12-18");
-//        verify(mockRateStorage).insertRateAndInverse("EUR", "CAD", 1.78F, "10-12-18");
-//        verify(mockRateStorage, times(2)).insertRateAndInverse("EUR", "EUR", 1.0f, "10-12-18");
+        assertTrue(converterPresenterUnderTest.currenciesList.contains("EUR"));
+        assertTrue(converterPresenterUnderTest.currenciesList.contains("AUD"));
+        assertTrue(converterPresenterUnderTest.currenciesList.contains("CAD"));
+        verify(realmStorage).insertRate("EUR", "AUD", 1.32F, "10-12-18");
+        verify(realmStorage).insertRate(eq("AUD"), eq("EUR"), anyFloat(), eq("10-12-18"));
+        verify(realmStorage).insertRate("EUR", "CAD", 1.78F, "10-12-18");
+        verify(realmStorage).insertRate(eq("CAD"), eq("EUR"), anyFloat(), eq("10-12-18"));
+        verify(realmStorage, times(1)).insertRate("EUR", "EUR", 1.0f, "10-12-18");
         verify(converterActivityView).setLoadingSpinnerGone();
     }
 

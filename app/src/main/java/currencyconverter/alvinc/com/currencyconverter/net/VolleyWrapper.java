@@ -20,14 +20,17 @@ public class VolleyWrapper {
     private final static String BASE = "%%BASE%%";
     private static final String INITIAL_CURRENCY = "CAD";
 
-    private static final Gson gson = new Gson();
+    private final Gson gson;
 
-    public static void getRates(@Nullable String currency, final ExchangeRatesCallback exchangeRatesCallback) {
+    public VolleyWrapper(Gson gson) {
+        this.gson = gson;
+    }
+
+    public void getRates(@Nullable String currency, final ExchangeRatesCallback exchangeRatesCallback) {
         if (currency == null || currency.isEmpty()) {
             currency = INITIAL_CURRENCY;
         }
         String url = replaceBase(URL, currency);
-        // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(BaseApplication.getContext());
 
         // Request a string response from the provided URL.
@@ -35,7 +38,6 @@ public class VolleyWrapper {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String json) {
-                        Log.d("ALVTAG," ,"json:"+json);
                         ExchangeRates exchangeRates = gson.fromJson(json, ExchangeRates.class);
                         exchangeRatesCallback.onFetchComplete(exchangeRates);
                     }
@@ -48,11 +50,10 @@ public class VolleyWrapper {
                 }
         );
         stringRequest.setShouldCache(false);
-        // Add the request to the RequestQueue.
         queue.add(stringRequest);
     }
 
-    static String replaceBase(String url, String currency) {
+    public String replaceBase(String url, String currency) {
         return url.replace(BASE, currency);
     }
 
